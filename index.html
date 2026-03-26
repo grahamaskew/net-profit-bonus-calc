@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VITAL Net Profit &amp; Bonus Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --vital-green: #6687e1;
+    --vital-green-dark: #4a6bc4;
+    --vital-green-light: #eef1fc;
+    --vital-green-mid: #b3c4f0;
+    --bg: #f5f6fd;
+    --surface: #ffffff;
+    --surface-alt: #f4f6fd;
+    --border: #dce4f8;
+    --border-strong: #a3b8ed;
+    --text-primary: #111827;
+    --text-secondary: #3d4f7a;
+    --text-muted: #7a8fbf;
+    --accent: var(--vital-green);
+    --accent-light: var(--vital-green-light);
+    --input-bg: #cfe2f3;
+    --input-border: #cc0000;
+    --green: var(--vital-green);
+    --green-light: var(--vital-green-light);
+    --amber: #b45309;
+    --amber-light: #fef3c7;
+    --red: #b91c1c;
+    --red-light: #fee2e2;
+    --sans: 'Geist', sans-serif;
+    --mono: 'Courier New', monospace;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+
+  /* HEADER */
+  header {
+    max-width: 900px;
+    margin: 0 auto 32px;
+    padding-bottom: 20px;
+    border-bottom: 2.5px solid var(--vital-green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .header-logo {
+    height: 48px;
+    width: 48px;
+    object-fit: contain;
+    display: block;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    padding-left: 2px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+  }
+  .btn-reset {
+    background: white;
+    color: var(--text-secondary);
+    border-color: var(--border-strong);
+  }
+  .btn-reset:hover {
+    background: var(--red-light);
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .btn-pdf {
+    background: var(--vital-green);
+    color: white;
+    border-color: var(--vital-green);
+  }
+  .btn-pdf:hover {
+    background: var(--vital-green-dark);
+    box-shadow: 0 2px 8px rgba(102,135,225,0.3);
+  }
+  .btn-clear {
+    background: white;
+    color: var(--text-secondary);
+    border-color: var(--border-strong);
+  }
+  .btn-clear:hover {
+    background: var(--amber-light);
+    color: var(--amber);
+    border-color: var(--amber);
+  }
+
+  /* Hide spinners on no-spin inputs */
+  input[type="number"].no-spin::-webkit-inner-spin-button,
+  input[type="number"].no-spin::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+  input[type="number"].no-spin { -moz-appearance: textfield; }
+
+  @media print {
+    body { background: white; padding: 12px; }
+    .header-actions { display: none; }
+    .card { break-inside: avoid; }
+    .metric-card { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+
+  /* LAYOUT */
+  .worksheet {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(102,135,225,0.06);
+  }
+  .card-header {
+    background: var(--text-primary);
+    color: #fff;
+    padding: 10px 16px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .card-header.accent { background: var(--vital-green); }
+  .card-body { padding: 16px; }
+
+  /* TWO-COLUMN COMPARISON */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .comparison-col { padding: 16px; }
+  .comparison-col:first-child {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .comparison-col:last-child { background: var(--surface-alt); }
+  .col-title {
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ROW LAYOUT */
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bg);
+    gap: 12px;
+    min-height: 38px;
+  }
+  .row:last-child { border-bottom: none; }
+  .row-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex: 1;
+    line-height: 1.3;
+  }
+  .row-label.strong { font-weight: 700; color: var(--text-primary); }
+
+  /* INPUTS */
+  input[type="number"],
+  input[type="text"].currency-input {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    border: 1.5px solid var(--input-border);
+    background: var(--input-bg);
+    border-radius: 4px;
+    padding: 5px 8px;
+    width: 110px;
+    color: var(--text-primary);
+    outline: none;
+    transition: box-shadow 0.15s;
+  }
+  input[type="number"]:focus,
+  input[type="text"].currency-input:focus {
+    box-shadow: 0 0 0 3px rgba(204,0,0,0.15);
+  }
+  input[type="number"].pct { width: 76px; }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+
+  /* COMPUTED VALUES */
+  .computed {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--text-primary);
+    min-width: 110px;
+    padding: 5px 8px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .computed.total {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--vital-green);
+    background: var(--vital-green-light);
+    border-color: var(--vital-green);
+  }
+  .computed.bonus-total {
+    font-weight: 700;
+    font-size: 15px;
+    color: #166534;
+    background: #dcfce7;
+    border-color: #86efac;
+  }
+  .computed.negative {
+    color: var(--red);
+    background: var(--red-light);
+    border-color: var(--red);
+  }
+
+  /* SEPARATOR */
+  .sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* METRICS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  .metric-card {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .metric-card.highlight { border-color: var(--vital-green); background: var(--vital-green-light); }
+  .metric-card.good { border-color: #22c55e; background: #dcfce7; }
+  .metric-card.warn { border-color: var(--amber); background: var(--amber-light); }
+  .metric-card.bad { border-color: var(--red); background: var(--red-light); }
+  .metric-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .metric-card.highlight .metric-title { color: var(--vital-green-dark); }
+  .metric-card.good .metric-title { color: #166534; }
+  .metric-card.warn .metric-title { color: var(--amber); }
+  .metric-card.bad .metric-title { color: var(--red); }
+  .metric-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .metric-card.highlight .metric-value { color: var(--vital-green); }
+  .metric-card.good .metric-value { color: #16a34a; }
+  .metric-card.warn .metric-value { color: var(--amber); }
+  .metric-card.bad .metric-value { color: var(--red); }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family: var(--mono);
+  }
+  .metric-card.good .metric-sub { color: #166534; }
+  .metric-card.warn .metric-sub { color: var(--amber); }
+  .metric-card.bad .metric-sub { color: var(--red); }
+
+  /* TOGGLE */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-alt);
+  }
+  .toggle-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border-strong);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch input:checked + .toggle-track { background: var(--vital-green); }
+  .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+  .toggle-status {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    min-width: 36px;
+    text-align: center;
+  }
+  .toggle-status.on { background: var(--vital-green-light); color: var(--vital-green); }
+  .toggle-status.off { background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* BONUS SECTION (shown/hidden) */
+  .bonus-section {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+  }
+  .bonus-section.visible {
+    max-height: 600px;
+    opacity: 1;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 14px; height: 14px; border-radius: 2px;
+    border: 1.5px solid var(--input-border);
+    background: var(--input-bg);
+    flex-shrink: 0;
+  }
+  .legend-swatch.calc {
+    background: var(--surface-alt);
+    border-color: var(--border);
+  }
+
+  /* MARGIN INPUT */
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-suffix {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 640px) {
+    .comparison { grid-template-columns: 1fr; }
+    .comparison-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .metrics-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <img src="data:image/webp;base64,UklGRq4PAABXRUJQVlA4WAoAAAAIAAAAHwEAHwEAVlA4IGYPAADwTQCdASogASABPjEYi0OiIaESWuSMIAMEtLdwuwCN+Zz4f/rnZb/Vv7B+xX9a/8nwT5L/F3sN+yWkh/Efqt96/rP7Yf1z9x/iXvJ9UPqC/hX8e/wf9d/ZT8xeNXrh6AXtD9H/yf93/cT+5ejVqU+AP9p7gH8q/pX+s/Nr4g/1XgN/av9p7AH8x/tn+1/x/uqfvX+6/u3+U/Z32fflH9u/4n+M/yv7Q/YN/Hv6B/qP7n/kf/V/iv///+Puz9fv7Yexb+u//PGyssqrFC2VVihbKqxQtlVYoWyqsULZVWKFsqrFC2S8U2Yj1yqsULZVTOLN5idnhgptR/WS8CjNqXvtTHyevgae8A2VItId9JCkD0GPUIpR/L14DuiR3qboqCmLzBSiQ/ObxDrI2KLQtkqgje1hXHAVQnj2Gv2j6/SU4QvHesGQeSVD2HbXnh/jntO8KVH+BtyCCaDmTbBK26Ct4ROPUYi5OlI/izV9ihXXIxY8tsd0oNXm2fLH1c6y0n2Gwc9Q09C/s3MC17ZTnRbRTn7cJ3DWWTBCSkQpO6K6VE76bpkUAhI5cBdDIGWkk0e9YJ1IffQ0ldiL11ZfhzgqBB6YxQtioQGAtKjinJ9N0QxwofWadh2uyUtpnwm5S9jMRs4zBNkFiumwHQ/Krdr2+pDEwzX62bZhCwDy22AekhIW9T5dklZxK6FkItC2S89SBaxpoXCCZnZAgi+HLC5wrehr7UzJzjEqs5JCosQZWLzZEEOwnrYKNeisQ7jnz8oMr9RIzi2v/+AcshSDyWhbJfR22JI+l5zYiFISWhbKqxQtlVYoWyqsULZVWKFsqrFC2VVihbKkAAD+/+qDAAICVNW2I3yqpBAUDhf80FD1r8F7cFqwYN11csGMNzC3MN3RtSVMGDD2D5o61Rsdv8dH4HSz83wkJodj51dnLle29Mb8KSKh/LIZ/yHmvicupg6zHQv3DvpilKu5nCUa+GlYP+0Qmczsx8HKeIBf0Dqm6U0ZdKWhTIrfGS42Y60SP8Xm3TR9cBGMjZ5Ufmy2Yv/v4u+cpWQBrP78KdmwQALR5hlyjWyjmdrEILddyKxy/RFIShm25P20E+lS0I+Et1MDgZ0TXr9dsGnEk8T70oeVxEDeWepe20NubgZqwokllqS91kRP8zKo8ayjkq3rehjpKUmS82/lt/nisU/2HjjIdthEWn3m0k7sz6CEp/djIDX21E73oL/X6g4C1PraNgvudt5jEJT2yUc/d0Dohcz1vV4mPi6bLPmRwhcmJtfE1psPk+9W+afJdLRNkOzZTBnPz/ppgDOrVDFEyiiaiTF5duxV8oFgvUsLYuyCbNTd9YtoxD7ST3nyMZSd0b1NnS3+bQ2BJwnwSvaD78K8s1RmjFHRpI+04AAKcY6Hxs0ufV7zsQQ6wq66NbM1d0B/GYJ2DqJoZdnOLH156V5jpIoWv6Ta7utpDk4+sMCkxgmMIdymsAMzpZpF4N8ekXpdfq0oDyGJBAoCvWWZegHmfzDCDVujVrrpdc0DfuY8n39uqFsRsowPCg8NQON4zLQgQnQkf7t4aXs6/skI3DVKyFLDkiGT8ixmhtbdt+utRueBhccA7DCSobLNWPu35f/gvrSw36A7+y9J5ayf0MFnvmeftpz0RJ8nQbnNdJib+XppwjZ3RYRLglcKPysXhjYpOB6cyuMLTUb3C7rVzXa1eRjJoKqPjPfyuzfRPyJLXqOPRczTe1VaabMfB1c8ml+fa4N/7IzQf1a/qjosMqETVfZd0o8tYqOs6cEoC9Ce+LM1P7/1+6V6vPvznPA8nViktLDSeRImnJLvpFnevcsDdcPkh86DUC46cZHEZjQFwt0ZDDZUdFkJwm3Z8jY/qONoZh7yc28hYJduc5c++EOr068oNVEywLjAv3AIWRZlU/rKgqCA++1M6gyEL8HgTmjtb7RpTPPC0xelG1Ddi/JVneZUN+Mqjm9rEqiDIIDmIDUifyPhykiTBcS9r72QqxRS1dz53PMywgIlyl5rs9JjKJGLTa+x922gtdKZq09i3sfDLvxfG1Du9uElWDuAe3FueFi7kTr3mH1nFoX0IrnzO+zvi8TGZJRAZen+HfN4IzNy8zkQ6Nw9aWPzoZPMWMR7n40n7p+UhftABpvDe9f207mgIcPTdDq5jiiQkBIXDg0zcthYVvnv3XZt1N7w+EAT72t+NvfRt+LjTua/UP4Yg0D2Dtb2pkQ5mHCUosUfJE4A5ZBYJJoodOePv+2n046+3kNW1T+m4tT5MwFtz5fEq54Jb4VXZCF1PmMDmFAYdgVaAJOv0Up+5FFZ93/snCn0IH4eCYMBNu76b2bnX0hUwPOvndf+JlYcWy8ar+xt6E2CCKYYS85Dhh6wu79/WtuzDr25rC//g0+1z5x9kIJG606jmuwC6ClZ/85K8uZva+ukgxJ9r+zjR6vOHXcjGhG3SWs6NsK+8oOWrSJqhf/iap0OogDBnYMBd2YWy5VSjHyVrxL+8CBhylNivpUqhXwok6sctKYD2+F5TtEKxY9cS/1v/SLgfjrDSX4Z+l0Bii/Ja/hPbNBZwRCOKwydfy1J0vDRSQ1ce6s/313RWCDmYpszlz46Be8uWih5f5/zrCNsYpGQaSCelv4NMoc/ZzdAcgHhFEQd9TrS1x+X7nLtujLVzmhxoM9LuCoQHmIfB0q/nGUSda+xqhRf+q/jvrwbkIkurhcy7usUvBUA9VPaxzOqCmE43FxAHi0b3or307siVSxii24Lrr0wL7MxiQoakXMd/3W/EsQd6XfTu3PB6OJOs6CnwOEmyt9yFG+YeWCnpF1NUDnfsWtRkLsUCLFODAHeK0OmVEBxKcZeox0lb5b5Vm71rsWU05ta+AkV3yI3okXsGt3fTezfnDxPNJTFuceR/Nr5cdXq6RhaIspxYalqMERPZoB460AxFKv1woxgMJQH+XEMxtlc3s1ASQY/cFvdwPTxAAat9U1h4omMagE1XD1AkhGxSaV7+N5duvroOGk/3+TsHAqpA49AANrXa4lXUcsyjODttOtmx430ghYk/LeC1vmJmbIkbBGayGMUXCNp5Axs009eZUdEEPEcS6sAqvzkGWU5SxdEM15LhNcy12o+GO6agvg19zY35I5//CK0ePvnyAjMuifKbXBvfID4TyyQvymvcDN7dcRGcCj5Ed0XhgrlaDkfJcmz3ffAIah1/08zaSzcFm1EJQne+a8RvGBkqLISatfcF//8rP6oxN+Da+AaZ01LvtxOUhFvzNc1a1275tfpjC7Fq/pDB4jXndMfDjorApFO79L/M9rmi2fSp2M9OQUBgXu8VkZUsMW6BvZb7E1ZHSWtXa4GT6dXw4sYL+ykIwei7+8+Nu7JgNITQdqRfLZqZr2R6ZqNKlxoKhZGAeI8WeN9XScrIAZ+JxbPk8FNCBl6JlZG+qOkwYLU2chOF936FOLJydzVz380jZoGWuy0KMrRAvstzIYKmvoRN8E5RGedxgOJ4ww3vXJJXFRQ94hl8D6wM21kEPt8xAXQRE/nvHHj4z01mhR2C+7+gvY7q3AP3KgZC5kH/a2utFvZQegB4WS1fUXhMHaq+G+PzgndjkAixkvbViDQCNmaQy4kyT/V/Dw/TCUDcFsV85MKFvPL3jhF3QrPo56fIODxa/limyhrOax6JLLge2LkmvJvGhxceUHWw+lJHrwd9v90xmonvwUvKCGsmVb8FMcbQevh5mxd8aPmi2t3B2oy0+s91poAivSazr5j5bu16JcAShGQ74T8++oKUrpbjmgkS29+UNis9h8400sSOezznw3BcRzNBxUXVGnF46Y81hyJ49xBCO9DL3mVeWKViHlyhV1fQH1yir8T2tATaP/nWywWKoHRI4vunbi9PN0OBVbAOco+QxZVlGfs1zbU7jc5owYqiw2HL/FCxAzTaU3RKQLQOrI1HztMbb/aMf00DMXSUv+4d12oXe2/syl5bLRp55iSxRt1r9XfsuII5RXeKbXPHV4wgpZsev+Sa3kuqi/KO7UgW9mGF7/KWQRKiW///qDMRYzmQ0zyExf1QNK8ZjrKduLY1EnUvVVOkMyWTJjC0k41NzmKSRbCUBayOIR9TEhOdL+RHjH8NhadE/eubpjbN9v5lbVCDiaFjnWyD+j0syaR7F5Cae1+Rk34jCpKLaK5ATX9zt0rN6J+q5nZZio4+bK4aUVUmdQ8UA12wUC0eu1w8WSyVeJYxyEMw9s5GoDxaFB8/qRWbxzDB5M7xUr/Q87Xf6f42MxHRQUpcNueSdqQFrlBCNMwG2FsuVSPBpoMrVymWRSq/RN8CyqX1/d5r27joZkmD7+kXszauG6yH6FDnUKjoifDDcDdSkBXgzqd8s1zn+HtVr+57THvV8EGdQG7VoY9TBPVHuH4VStumG3wwprrmJrjeuO9kGKIq4eaAo4N1S8uMfLnJ3bP7H66yVzkiXyPlnjKTJX2ySRlydl7PJ+0QpaFJ7CMagXkggTaHYteRsKEAaKQ8ty55R2Nf82tbV1YPeANEwY28Q8P07PBXBigDC4C4o18grgHJ/x9E+28PTZIg/6G3P9XO8iU2LTiap4c56nKCG8SeLsaVLdUIXl/u5GZZq9FMqqPBDtIyrMvECIQXQBPlV+jRy8QWmOXnOj0O3YY0iOXqu+45qOnBdkTTH8a5yLIE0bXKGUK9bfI5pc7oeaxfA3HzVatYq83UeiSEUyKL87IHiP5g5uMmjGljSZb9N7ZQhI/w/YRht/NbJ8Ie8CFjDyIKXREQcab33Bk+GCXPoF6TLMTBIBsSQVOeXetZWmpQF+rn+VI98EaxbZUkS1+im5N5m1slzUVeQhTq1B3L9oW8g7oVZXx8vRzjuuxylZSgxi2sIqZ8SioFMpbzSngSmGpWvQrPCgbmA34kaGBKTM/H7vkcFBVkkP3mP+4k5FejzuRVppM1ML8BHCAB+iBhNtw5MOeKevCqVbzYxez0EfMqJHqU52onE1dlqOEehz0bcav7LEoIYyihfag2WrlQdeRo9qfTMXG5UWpHbDp3OXkpKQQboQ6KA2mvEFPblmU5wNreIuM2iQhwnWmQmLyBmhvP8NiCGm06vu5PuwvHFx+zy2lJlNToL7rxCBwEgFO+dJ6ul2Fa4ASH1inp0j3xoyz2dcq1DAYE1LgQvvIMQ5tfDShMAiDybz8Kw0G3SrFXzr4vTTTyuGft7SV99yGuyCv5XLmNlvJU3cdlGHO68pZU06UNQAll0TmTj89+cNAAAAAAABFWElGIgAAAElJKgAIAAAAAQAxAQIABwAAABoAAAAAAAAAUGljYXNhAAA=" alt="VITAL" class="header-logo">
+    <span class="header-subtitle">Net Profit &amp; Bonus Calculator</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-reset" onclick="resetWorksheet()" title="Clear all fields and reset to defaults">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+      Reset
+    </button>
+    <button class="btn btn-clear" onclick="clearFields()" title="Clear all input fields">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Clear
+    </button>
+    <button class="btn btn-pdf" onclick="exportPDF()" title="Export to PDF">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      Export PDF
+    </button>
+  </div>
+</header>
+
+<div class="worksheet">
+
+  <!-- SECTION 1: REVENUE -->
+  <div class="card">
+    <div class="card-header">&#9312; Revenue &mdash; Target vs Actual</div>
+    <div class="comparison">
+
+      <!-- LEFT: TARGET -->
+      <div class="comparison-col">
+        <div class="col-title">Revenue target</div>
+        <div class="row">
+          <span class="row-label strong">Annual Revenue Target</span>
+          <div class="input-wrap">
+            <span class="input-suffix">$</span>
+            <input type="text" id="rev-target" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: ACTUAL -->
+      <div class="comparison-col">
+        <div class="col-title">Actual revenue</div>
+        <div class="row">
+          <span class="row-label strong">Actual Annual Revenue</span>
+          <div class="input-wrap">
+            <span class="input-suffix">$</span>
+            <input type="text" id="rev-actual" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch"></div> Editable input (revenue $ and NOP %)</div>
+      <div class="legend-item"><div class="legend-swatch calc"></div> Calculated (read-only)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: NOP -->
+  <div class="card">
+    <div class="card-header accent">&#9313; Net Operating Profit (NOP)</div>
+    <div class="comparison">
+
+      <!-- LEFT: TARGET -->
+      <div class="comparison-col">
+        <div class="col-title">NOP targets</div>
+
+        <div class="row">
+          <span class="row-label">Baseline NOP %</span>
+          <div class="input-wrap">
+            <input type="number" id="baseline-nop-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Baseline NOP $</span>
+          <span class="computed" id="baseline-nop-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label">NOP Target %</span>
+          <div class="input-wrap">
+            <input type="number" id="nop-target-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">NOP Target $</span>
+          <span class="computed" id="nop-target-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label strong">NOP Gain / Loss (Target)</span>
+          <span class="computed total" id="nop-gain-target">&mdash;</span>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: ACTUAL -->
+      <div class="comparison-col">
+        <div class="col-title">Actual NOP</div>
+
+        <div class="row">
+          <span class="row-label">Actual NOP %</span>
+          <div class="input-wrap">
+            <input type="number" id="actual-nop-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Actual NOP $</span>
+          <span class="computed" id="actual-nop-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label">Actual NOP vs Baseline $</span>
+          <span class="computed" id="actual-nop-vs-baseline">&mdash;</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Actual NOP vs Target $</span>
+          <span class="computed" id="actual-nop-vs-target">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label strong">Actual NOP Gain / Loss</span>
+          <span class="computed total" id="nop-gain-actual">&mdash;</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: BONUS -->
+  <div class="card">
+    <div class="card-header">&#9314; Bonus Pool</div>
+
+    <!-- Toggle -->
+    <div class="toggle-row">
+      <span class="toggle-label">Allocate NOP gain to bonus pool</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="bonus-toggle" onchange="handleToggle()">
+        <span class="toggle-track"></span>
+      </label>
+      <span class="toggle-status off" id="toggle-status">OFF</span>
+    </div>
+
+    <div class="bonus-section" id="bonus-section">
+      <div class="comparison">
+        <div class="comparison-col">
+          <div class="col-title">Bonus parameters</div>
+          <div class="row">
+            <span class="row-label">NOP gain → bonus rate</span>
+            <div class="input-wrap">
+              <input type="number" id="bonus-rate" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="row-label">Applied to (target or actual)</span>
+            <select id="bonus-basis" style="font-family:var(--mono);font-size:13px;padding:5px 8px;border:1.5px solid var(--input-border);background:var(--input-bg);border-radius:4px;color:var(--text-primary);outline:none;cursor:pointer;">
+              <option value="actual">Actual NOP Gain</option>
+              <option value="target">Target NOP Gain</option>
+            </select>
+          </div>
+        </div>
+        <div class="comparison-col">
+          <div class="col-title">Bonus result</div>
+          <div class="row">
+            <span class="row-label">NOP gain used</span>
+            <span class="computed" id="bonus-gain-used">&mdash;</span>
+          </div>
+          <div class="row">
+            <span class="row-label">Bonus rate applied</span>
+            <span class="computed" id="bonus-rate-display">&mdash;</span>
+          </div>
+          <div class="sep"></div>
+          <div class="row">
+            <span class="row-label strong">Total Bonus Pool $</span>
+            <span class="computed bonus-total" id="total-bonus">&mdash;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: SUMMARY -->
+  <div class="card">
+    <div class="card-header accent">&#9315; Performance Summary</div>
+    <div class="metrics-grid">
+      <div class="metric-card highlight" id="mc-rev-attain">
+        <div class="metric-title">Revenue Attainment<br><span style="font-weight:300">actual vs target</span></div>
+        <div class="metric-value" id="rev-attain-val">&mdash;</div>
+        <div class="metric-sub" id="rev-attain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-nop-attain">
+        <div class="metric-title">NOP Attainment<br><span style="font-weight:300">actual vs target %</span></div>
+        <div class="metric-value" id="nop-attain-val">&mdash;</div>
+        <div class="metric-sub" id="nop-attain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-nop-gain">
+        <div class="metric-title">Actual NOP Gain<br><span style="font-weight:300">above baseline</span></div>
+        <div class="metric-value" id="nop-gain-val">&mdash;</div>
+        <div class="metric-sub" id="nop-gain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-bonus-summary">
+        <div class="metric-title">Total Bonus Pool<br><span style="font-weight:300">if allocated</span></div>
+        <div class="metric-value" id="bonus-summary-val">&mdash;</div>
+        <div class="metric-sub" id="bonus-summary-sub"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const DEFAULTS = {
+    inputs: ['rev-target','rev-actual','baseline-nop-pct','nop-target-pct','actual-nop-pct','bonus-rate']
+  };
+
+  const fmt$ = v => isNaN(v)||!isFinite(v) ? '\u2014' : '$' + Math.round(v).toLocaleString();
+  const fmtPct = v => isNaN(v)||!isFinite(v) ? '\u2014' : (v*100).toFixed(1) + '%';
+  const el = id => document.getElementById(id);
+  const rawVal = id => {
+    const inp = el(id);
+    if (!inp) return 0;
+    const v = parseFloat(inp.value.replace(/,/g, ''));
+    return isNaN(v) ? 0 : v;
+  };
+
+  function colorMetric(cardId, value, thresholds) {
+    const card = el(cardId);
+    card.classList.remove('good','warn','bad','highlight');
+    if (isNaN(value)||!isFinite(value)) return;
+    if (value >= thresholds.good) card.classList.add('good');
+    else if (value >= thresholds.warn) card.classList.add('warn');
+    else card.classList.add('bad');
+  }
+
+  function setComputed(id, value, isNegativeRed) {
+    const span = el(id);
+    span.textContent = fmt$(value);
+    span.classList.remove('negative');
+    if (isNegativeRed && isFinite(value) && value < 0) span.classList.add('negative');
+  }
+
+  function resetWorksheet() {
+    DEFAULTS.inputs.forEach(id => { if(el(id)) el(id).value = ''; });
+    el('bonus-toggle').checked = false;
+    el('bonus-basis').value = 'actual';
+    handleToggle();
+    recalc();
+  }
+
+  function clearFields() {
+    DEFAULTS.inputs.forEach(id => { if(el(id)) el(id).value = ''; });
+    recalc();
+  }
+
+  function exportPDF() { window.print(); }
+
+  function handleToggle() {
+    const on = el('bonus-toggle').checked;
+    const statusEl = el('toggle-status');
+    statusEl.textContent = on ? 'ON' : 'OFF';
+    statusEl.className = 'toggle-status ' + (on ? 'on' : 'off');
+    el('bonus-section').classList.toggle('visible', on);
+    recalc();
+  }
+
+  function recalc() {
+    const revTarget  = rawVal('rev-target');
+    const revActual  = rawVal('rev-actual');
+    const baselinePct = rawVal('baseline-nop-pct') / 100;
+    const nopTargetPct = rawVal('nop-target-pct') / 100;
+    const actualNopPct = rawVal('actual-nop-pct') / 100;
+    const bonusRate  = rawVal('bonus-rate') / 100;
+    const bonusOn    = el('bonus-toggle').checked;
+    const basisActual = el('bonus-basis').value === 'actual';
+
+    // --- Baseline NOP ---
+    const baselineNopDollar = revTarget > 0 ? revTarget * baselinePct : NaN;
+    const actualBaselineNop = revActual > 0 ? revActual * baselinePct : NaN;
+    el('baseline-nop-dollar').textContent = isFinite(baselineNopDollar) && revTarget > 0 ? fmt$(baselineNopDollar) : '\u2014';
+
+    // --- NOP Target ---
+    const nopTargetDollar = revTarget > 0 ? revTarget * nopTargetPct : NaN;
+    el('nop-target-dollar').textContent = isFinite(nopTargetDollar) && revTarget > 0 ? fmt$(nopTargetDollar) : '\u2014';
+
+    // --- NOP Gain Target (target NOP$ - baseline NOP$) ---
+    const nopGainTarget = (isFinite(nopTargetDollar) && isFinite(baselineNopDollar))
+      ? nopTargetDollar - baselineNopDollar : NaN;
+    setComputed('nop-gain-target', nopGainTarget, true);
+
+    // --- Actual NOP ---
+    const actualNopDollar = revActual > 0 ? revActual * actualNopPct : NaN;
+    el('actual-nop-dollar').textContent = isFinite(actualNopDollar) && revActual > 0 ? fmt$(actualNopDollar) : '\u2014';
+
+    // --- Actual vs Baseline ---
+    const actualVsBaseline = (isFinite(actualNopDollar) && isFinite(actualBaselineNop))
+      ? actualNopDollar - actualBaselineNop : NaN;
+    const actualSpan = el('actual-nop-vs-baseline');
+    actualSpan.textContent = isFinite(actualVsBaseline) ? fmt$(actualVsBaseline) : '\u2014';
+    actualSpan.classList.toggle('negative', isFinite(actualVsBaseline) && actualVsBaseline < 0);
+
+    // --- Actual vs Target ---
+    const actualVsTarget = (isFinite(actualNopDollar) && isFinite(nopTargetDollar))
+      ? actualNopDollar - nopTargetDollar : NaN;
+    const vtSpan = el('actual-nop-vs-target');
+    vtSpan.textContent = isFinite(actualVsTarget) ? fmt$(actualVsTarget) : '\u2014';
+    vtSpan.classList.toggle('negative', isFinite(actualVsTarget) && actualVsTarget < 0);
+
+    // --- Actual NOP Gain (above baseline) ---
+    const nopGainActual = isFinite(actualVsBaseline) ? actualVsBaseline : NaN;
+    setComputed('nop-gain-actual', nopGainActual, true);
+
+    // --- Bonus ---
+    const gainForBonus = basisActual ? nopGainActual : nopGainTarget;
+    const totalBonus = (bonusOn && isFinite(gainForBonus) && gainForBonus > 0)
+      ? gainForBonus * bonusRate : NaN;
+
+    el('bonus-gain-used').textContent = bonusOn && isFinite(gainForBonus) ? fmt$(gainForBonus) : '\u2014';
+    el('bonus-rate-display').textContent = bonusOn && bonusRate > 0 ? fmtPct(bonusRate) : '\u2014';
+    el('total-bonus').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus) : (bonusOn ? '$0' : '\u2014');
+
+    // --- Summary Metrics ---
+    const revAttain = (revTarget > 0 && revActual > 0) ? revActual / revTarget : NaN;
+    el('rev-attain-val').textContent = fmtPct(revAttain);
+    el('rev-attain-sub').textContent = (isFinite(revAttain) && revTarget > 0)
+      ? fmt$(revActual) + ' of ' + fmt$(revTarget) : '';
+
+    const nopAttain = (nopTargetPct > 0 && actualNopPct > 0) ? actualNopPct / nopTargetPct : NaN;
+    el('nop-attain-val').textContent = fmtPct(nopAttain);
+    el('nop-attain-sub').textContent = (isFinite(nopAttain) && nopTargetPct > 0)
+      ? fmtPct(actualNopPct) + ' actual vs ' + fmtPct(nopTargetPct) + ' target' : '';
+
+    el('nop-gain-val').textContent = isFinite(nopGainActual) ? fmt$(nopGainActual) : '\u2014';
+    el('nop-gain-sub').textContent = isFinite(nopGainActual)
+      ? (nopGainActual >= 0 ? 'Above baseline NOP' : 'Below baseline NOP') : '';
+
+    el('bonus-summary-val').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus)
+      : (bonusOn ? '$0' : '\u2014');
+    el('bonus-summary-sub').textContent = (bonusOn && isFinite(totalBonus) && bonusRate > 0)
+      ? fmtPct(bonusRate) + ' of ' + (basisActual ? 'actual' : 'target') + ' NOP gain' : '';
+
+    // Color metrics
+    colorMetric('mc-rev-attain', revAttain, { good: 1.0, warn: 0.85 });
+    colorMetric('mc-nop-attain', nopAttain, { good: 1.0, warn: 0.85 });
+    if (isFinite(nopGainActual)) {
+      const card = el('mc-nop-gain');
+      card.classList.remove('good','warn','bad','highlight');
+      card.classList.add(nopGainActual >= 0 ? 'good' : 'bad');
+    }
+    if (bonusOn && isFinite(totalBonus)) {
+      const card = el('mc-bonus-summary');
+      card.classList.remove('good','warn','bad','highlight');
+      card.classList.add(totalBonus > 0 ? 'good' : 'warn');
+    }
+  }
+
+  // ---- CURRENCY INPUT FORMATTING ----
+  const CURRENCY_IDS = ['rev-target','rev-actual'];
+
+  function formatCurrency(input) {
+    const raw = input.value.replace(/,/g, '');
+    if (raw === '' || raw === '-') return;
+    const num = parseFloat(raw);
+    if (isNaN(num)) { input.value = ''; return; }
+    input.value = Math.floor(num).toLocaleString('en-US');
+  }
+
+  function unformatCurrency(input) {
+    input.value = input.value.replace(/,/g, '');
+  }
+
+  CURRENCY_IDS.forEach(id => {
+    const input = el(id);
+    input.addEventListener('focus', () => unformatCurrency(input));
+    input.addEventListener('blur', () => { formatCurrency(input); recalc(); });
+    input.addEventListener('keydown', e => {
+      const allowed = ['Backspace','Delete','Tab','Enter','ArrowLeft','ArrowRight','Home','End'];
+      if (allowed.includes(e.key)) return;
+      if (e.key >= '0' && e.key <= '9') return;
+      e.preventDefault();
+    });
+  });
+
+  ['baseline-nop-pct','nop-target-pct','actual-nop-pct','bonus-rate'].forEach(id => {
+    const inp = el(id);
+    if (inp) inp.addEventListener('input', recalc);
+  });
+
+  el('bonus-basis').addEventListener('change', recalc);
+
+  recalc();
+</script>
+</body>
+</html>
