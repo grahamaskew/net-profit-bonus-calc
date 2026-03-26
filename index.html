@@ -534,6 +534,20 @@
       <div class="comparison-col">
         <div class="col-title">Actual NOP</div>
 
+        <!-- Row 1: blank spacer to align with Baseline NOP % input row -->
+        <div class="row" style="visibility:hidden;pointer-events:none;">
+          <span class="row-label">&nbsp;</span>
+          <span class="computed">&mdash;</span>
+        </div>
+        <!-- Row 2: Actual NOP at Baseline % = Actual Revenue × Baseline NOP % -->
+        <div class="row">
+          <span class="row-label">Actual NOP at Baseline %</span>
+          <span class="computed" id="actual-nop-at-baseline">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <!-- Row 3: Aligns with NOP Target % -->
         <div class="row">
           <span class="row-label">Actual NOP %</span>
           <div class="input-wrap">
@@ -541,6 +555,7 @@
             <span class="input-suffix">%</span>
           </div>
         </div>
+        <!-- Row 4: Aligns with NOP Target $ -->
         <div class="row">
           <span class="row-label">Actual NOP $</span>
           <span class="computed" id="actual-nop-dollar">&mdash;</span>
@@ -548,17 +563,7 @@
 
         <div class="sep"></div>
 
-        <div class="row">
-          <span class="row-label">Actual NOP vs Baseline $</span>
-          <span class="computed" id="actual-nop-vs-baseline">&mdash;</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Actual NOP vs Target $</span>
-          <span class="computed" id="actual-nop-vs-target">&mdash;</span>
-        </div>
-
-        <div class="sep"></div>
-
+        <!-- Row 5: Aligns with NOP Gain / Loss (Target) -->
         <div class="row">
           <span class="row-label strong">Actual NOP Gain / Loss</span>
           <span class="computed total" id="nop-gain-actual">&mdash;</span>
@@ -717,7 +722,6 @@
 
     // --- Baseline NOP ---
     const baselineNopDollar = revTarget > 0 ? revTarget * baselinePct : NaN;
-    const actualBaselineNop = revActual > 0 ? revActual * baselinePct : NaN;
     el('baseline-nop-dollar').textContent = isFinite(baselineNopDollar) && revTarget > 0 ? fmt$(baselineNopDollar) : '\u2014';
 
     // --- NOP Target ---
@@ -733,22 +737,13 @@
     const actualNopDollar = revActual > 0 ? revActual * actualNopPct : NaN;
     el('actual-nop-dollar').textContent = isFinite(actualNopDollar) && revActual > 0 ? fmt$(actualNopDollar) : '\u2014';
 
-    // --- Actual vs Baseline ---
-    const actualVsBaseline = (isFinite(actualNopDollar) && isFinite(actualBaselineNop))
-      ? actualNopDollar - actualBaselineNop : NaN;
-    const actualSpan = el('actual-nop-vs-baseline');
-    actualSpan.textContent = isFinite(actualVsBaseline) ? fmt$(actualVsBaseline) : '\u2014';
-    actualSpan.classList.toggle('negative', isFinite(actualVsBaseline) && actualVsBaseline < 0);
+    // --- Actual NOP at Baseline % (Actual Revenue × Baseline NOP %) ---
+    const actualNopAtBaseline = revActual > 0 && baselinePct > 0 ? revActual * baselinePct : NaN;
+    el('actual-nop-at-baseline').textContent = isFinite(actualNopAtBaseline) ? fmt$(actualNopAtBaseline) : '\u2014';
 
-    // --- Actual vs Target ---
-    const actualVsTarget = (isFinite(actualNopDollar) && isFinite(nopTargetDollar))
-      ? actualNopDollar - nopTargetDollar : NaN;
-    const vtSpan = el('actual-nop-vs-target');
-    vtSpan.textContent = isFinite(actualVsTarget) ? fmt$(actualVsTarget) : '\u2014';
-    vtSpan.classList.toggle('negative', isFinite(actualVsTarget) && actualVsTarget < 0);
-
-    // --- Actual NOP Gain (above baseline) ---
-    const nopGainActual = isFinite(actualVsBaseline) ? actualVsBaseline : NaN;
+    // --- Actual NOP Gain (Actual NOP $ − Actual NOP at Baseline $) ---
+    const nopGainActual = (isFinite(actualNopDollar) && isFinite(actualNopAtBaseline))
+      ? actualNopDollar - actualNopAtBaseline : NaN;
     setComputed('nop-gain-actual', nopGainActual, true);
 
     // --- Bonus ---
