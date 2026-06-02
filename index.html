@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Net Profit Bonus Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:          #102A43;
+  --navy-mid:      #1C3A54;
+  --navy-text:     rgba(255,255,255,0.65);
+  --navy-text-dim: rgba(255,255,255,0.45);
+  --accent:        #2F80ED;
+  --accent-dark:   #1A65C8;
+  --accent-light:  #EBF4FE;
+  --accent-mid:    #93C5FD;
+  --teal:          #2DD4BF;
+  --teal-dark:     #0D9488;
+  --teal-light:    #E6FAF8;
+  --text-primary:  #1F2937;
+  --text-muted:    #475569;
+  --text-faint:    #64748B;
+  --bg-page:       #F6F8FB;
+  --bg-card:       #FFFFFF;
+  --bg-subtle:     #F1F5F9;
+  --border:        #E2E8F0;
+  --border-light:  #F1F5F9;
+  --amber:         #B45309;
+  --amber-light:   #FEF3C7;
+  --red:           #B91C1C;
+  --red-light:     #FEE2E2;
+  --input-bg:      #EBF4FE;
+  --input-border:  #DC2626;
+  --sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* ── TOPBAR ── */
+.app-topbar {
+  background: var(--navy);
+  width: 100%;
+}
+.app-topbar-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  gap: 12px;
+}
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.app-title {
+  font-size: 21px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.app-sub {
+  font-size: 13px;
+  color: var(--navy-text);
+  margin-top: 2px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── CONTENT ── */
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, box-shadow .12s;
+  border-radius: 6px;
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: var(--navy-text);
+}
+.btn:hover { background: rgba(255,255,255,0.15); }
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 14px;
+  box-shadow: 0 2px 6px rgba(47,128,237,.25);
+  transition: background .12s, box-shadow .12s;
+}
+.btn-primary:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-header {
+  background: var(--navy);
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.card-header.accent { background: var(--accent); }
+.card-body { padding: 16px; }
+
+/* ── COMPARISON ── */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.comparison-col { padding: 16px; }
+.comparison-col:first-child {
+  border-right: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.comparison-col:last-child { background: var(--bg-subtle); }
+.col-title {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── ROWS ── */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--bg-page);
+  gap: 12px;
+  min-height: 38px;
+}
+.row:last-child { border-bottom: none; }
+.row-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+  line-height: 1.3;
+}
+.row-label.strong { font-weight: 700; color: var(--text-primary); }
+
+/* ── INPUTS ── */
+input[type="number"],
+input[type="text"].currency-input {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  border-radius: 6px;
+  padding: 5px 8px;
+  width: 110px;
+  color: var(--text-primary);
+  outline: none;
+  transition: box-shadow 0.15s;
+}
+input[type="number"]:focus,
+input[type="text"].currency-input:focus {
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+}
+input[type="number"].pct { width: 76px; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+input[type="number"].no-spin::-webkit-inner-spin-button,
+input[type="number"].no-spin::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+input[type="number"].no-spin { -moz-appearance: textfield; }
+
+/* ── COMPUTED ── */
+.computed {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--text-primary);
+  min-width: 110px;
+  padding: 5px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.computed.total {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-color: var(--accent-mid);
+}
+.computed.bonus-total {
+  font-weight: 700;
+  font-size: 15px;
+  color: #166534;
+  background: #DCFCE7;
+  border-color: #86EFAC;
+}
+.computed.negative {
+  color: var(--red);
+  background: var(--red-light);
+  border-color: var(--red);
+}
+
+/* ── SEPARATOR ── */
+.sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ── INPUT WRAP ── */
+.input-wrap { display: flex; align-items: center; gap: 6px; }
+.input-suffix { font-size: 13px; color: var(--text-faint); font-family: var(--mono); }
+
+/* ── SELECT ── */
+select {
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 5px 8px;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  border-radius: 6px;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── METRICS ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+.metric-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.metric-card.highlight { border-color: var(--accent-mid); background: var(--accent-light); }
+.metric-card.good      { border-color: #86EFAC;           background: #DCFCE7; }
+.metric-card.warn      { border-color: var(--amber);      background: var(--amber-light); }
+.metric-card.bad       { border-color: var(--red);        background: var(--red-light); }
+.metric-title {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.metric-card.highlight .metric-title { color: var(--accent-dark); }
+.metric-card.good .metric-title      { color: #166534; }
+.metric-card.warn .metric-title      { color: var(--amber); }
+.metric-card.bad  .metric-title      { color: var(--red); }
+.metric-value {
+  font-family: var(--mono);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+.metric-card.highlight .metric-value { color: var(--accent); }
+.metric-card.good .metric-value      { color: #16A34A; }
+.metric-card.warn .metric-value      { color: var(--amber); }
+.metric-card.bad  .metric-value      { color: var(--red); }
+.metric-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-family: var(--mono);
+}
+.metric-card.good .metric-sub { color: #166534; }
+.metric-card.warn .metric-sub { color: var(--amber); }
+.metric-card.bad  .metric-sub { color: var(--red); }
+
+/* ── TOGGLE ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex: 1;
+}
+.toggle-switch {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-track { background: var(--accent); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+.toggle-status {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 36px;
+  text-align: center;
+}
+.toggle-status.on  { background: var(--accent-light); color: var(--accent); }
+.toggle-status.off { background: var(--bg-subtle); color: var(--text-faint); border: 1px solid var(--border); }
+
+/* ── BONUS SECTION ── */
+.bonus-section {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+.bonus-section.visible {
+  max-height: 600px;
+  opacity: 1;
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  background: var(--bg-subtle);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch {
+  width: 14px; height: 14px; border-radius: 3px;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  flex-shrink: 0;
+}
+.legend-swatch.calc {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+@media (max-width: 640px) {
+  .comparison { grid-template-columns: 1fr; }
+  .comparison-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .metrics-grid { grid-template-columns: 1fr; }
+}
+
+@media print {
+  @page { margin: 0.5in; size: auto; }
+  body { background: white; }
+  .app-topbar { display: none !important; }
+  .card { break-inside: avoid; border: 1px solid #ccc; border-radius: 0; box-shadow: none; }
+  .metric-card { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-topbar">
+  <div class="app-topbar-inner">
+    <div class="app-header">
+      <div class="app-header-left">
+        <img src="ga-logo.png" alt="GA" class="app-logo">
+        <div>
+          <div class="app-title">Net Profit Bonus Calculator</div>
+          <div class="app-sub">NOP Performance &amp; Bonus Pool</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn" onclick="resetWorksheet()" title="Clear all fields and reset to defaults">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+          Reset
+        </button>
+        <button class="btn" onclick="clearFields()" title="Clear all input fields">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Clear
+        </button>
+        <button class="btn-primary" onclick="exportPDF()" title="Export to PDF">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Export PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- SECTION 1: REVENUE -->
+  <div class="card">
+    <div class="card-header">&#9312; Target Revenue &mdash; Target vs Actual</div>
+    <div class="comparison">
+
+      <div class="comparison-col">
+        <div class="col-title">Target Revenue</div>
+        <div class="row">
+          <span class="row-label strong">Annual Revenue Target</span>
+          <div class="input-wrap">
+            <span class="input-suffix">$</span>
+            <input type="text" id="rev-target" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-col">
+        <div class="col-title">Actual Revenue</div>
+        <div class="row">
+          <span class="row-label strong">Actual Annual Revenue</span>
+          <div class="input-wrap">
+            <span class="input-suffix">$</span>
+            <input type="text" id="rev-actual" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch"></div> Editable input (revenue $ and NOP %)</div>
+      <div class="legend-item"><div class="legend-swatch calc"></div> Calculated (read-only)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: NOP -->
+  <div class="card">
+    <div class="card-header accent">&#9313; Net Operating Profit (NOP)</div>
+    <div class="comparison">
+
+      <div class="comparison-col">
+        <div class="col-title">NOP Targets</div>
+
+        <div class="row">
+          <span class="row-label">Baseline NOP %</span>
+          <div class="input-wrap">
+            <input type="number" id="baseline-nop-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Baseline NOP $</span>
+          <span class="computed" id="baseline-nop-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label">NOP Target %</span>
+          <div class="input-wrap">
+            <input type="number" id="nop-target-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">NOP Target $</span>
+          <span class="computed" id="nop-target-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label strong">NOP Gain / Loss (Target)</span>
+          <span class="computed total" id="nop-gain-target">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="comparison-col">
+        <div class="col-title">Actual NOP</div>
+
+        <div class="row" style="visibility:hidden;pointer-events:none;">
+          <span class="row-label">&nbsp;</span>
+          <span class="computed">&mdash;</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Actual NOP at Baseline %</span>
+          <span class="computed" id="actual-nop-at-baseline">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label">Actual NOP %</span>
+          <div class="input-wrap">
+            <input type="number" id="actual-nop-pct" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Actual NOP $</span>
+          <span class="computed" id="actual-nop-dollar">&mdash;</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <span class="row-label strong">NOP Gain / Loss (Actual)</span>
+          <span class="computed total" id="nop-gain-actual">&mdash;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: BONUS -->
+  <div class="card">
+    <div class="card-header">&#9314; Bonus Pool</div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Allocate $ to bonus pool</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="bonus-toggle" onchange="handleToggle()">
+        <span class="toggle-track"></span>
+      </label>
+      <span class="toggle-status off" id="toggle-status">OFF</span>
+    </div>
+
+    <div class="bonus-section" id="bonus-section">
+      <div class="comparison">
+        <div class="comparison-col">
+          <div class="col-title">Bonus Parameters</div>
+          <div class="row">
+            <span class="row-label">% NOP gain → bonus</span>
+            <div class="input-wrap">
+              <input type="number" id="bonus-rate" value="" class="pct no-spin" min="0" max="100" step="0.1" placeholder="0">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="row-label">Applied to (target or actual)</span>
+            <select id="bonus-basis">
+              <option value="actual">Actual NOP Gain</option>
+              <option value="target">Target NOP Gain</option>
+            </select>
+          </div>
+        </div>
+        <div class="comparison-col">
+          <div class="col-title">Bonus Result</div>
+          <div class="row">
+            <span class="row-label">NOP gain used</span>
+            <span class="computed" id="bonus-gain-used">&mdash;</span>
+          </div>
+          <div class="row">
+            <span class="row-label">% NOP gain applied</span>
+            <span class="computed" id="bonus-rate-display">&mdash;</span>
+          </div>
+          <div class="sep"></div>
+          <div class="row">
+            <span class="row-label strong">Total Bonus Pool $</span>
+            <span class="computed bonus-total" id="total-bonus">&mdash;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: SUMMARY -->
+  <div class="card">
+    <div class="card-header accent">&#9315; Performance Summary</div>
+    <div class="metrics-grid">
+      <div class="metric-card highlight" id="mc-rev-attain">
+        <div class="metric-title">Revenue Attainment<br><span style="font-weight:300">actual vs target</span></div>
+        <div class="metric-value" id="rev-attain-val">&mdash;</div>
+        <div class="metric-sub" id="rev-attain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-nop-attain">
+        <div class="metric-title">NOP % Attainment<br><span style="font-weight:300">actual vs target %</span></div>
+        <div class="metric-value" id="nop-attain-val">&mdash;</div>
+        <div class="metric-sub" id="nop-attain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-nop-gain">
+        <div class="metric-title">Actual NOP Gain<br><span style="font-weight:300">above baseline</span></div>
+        <div class="metric-value" id="nop-gain-val">&mdash;</div>
+        <div class="metric-sub" id="nop-gain-sub"></div>
+      </div>
+      <div class="metric-card" id="mc-bonus-summary">
+        <div class="metric-title">Total Bonus Pool<br><span style="font-weight:300">if allocated</span></div>
+        <div class="metric-value" id="bonus-summary-val">&mdash;</div>
+        <div class="metric-sub" id="bonus-summary-sub"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const DEFAULTS = {
+    inputs: ['rev-target','rev-actual','baseline-nop-pct','nop-target-pct','actual-nop-pct','bonus-rate']
+  };
+
+  const fmt$ = v => isNaN(v)||!isFinite(v) ? '—' : '$' + Math.round(v).toLocaleString();
+  const fmtPct = v => isNaN(v)||!isFinite(v) ? '—' : (v*100).toFixed(1) + '%';
+  const el = id => document.getElementById(id);
+  const rawVal = id => {
+    const inp = el(id);
+    if (!inp) return 0;
+    const v = parseFloat(inp.value.replace(/,/g, ''));
+    return isNaN(v) ? 0 : v;
+  };
+
+  function colorMetric(cardId, value, thresholds) {
+    const card = el(cardId);
+    card.classList.remove('good','warn','bad','highlight');
+    if (isNaN(value)||!isFinite(value)) return;
+    if (value >= thresholds.good) card.classList.add('good');
+    else if (value >= thresholds.warn) card.classList.add('warn');
+    else card.classList.add('bad');
+  }
+
+  function setComputed(id, value, isNegativeRed) {
+    const span = el(id);
+    span.textContent = fmt$(value);
+    span.classList.remove('negative');
+    if (isNegativeRed && isFinite(value) && value < 0) span.classList.add('negative');
+  }
+
+  function resetWorksheet() {
+    DEFAULTS.inputs.forEach(id => { if(el(id)) el(id).value = ''; });
+    el('bonus-toggle').checked = false;
+    el('bonus-basis').value = 'actual';
+    handleToggle();
+    recalc();
+  }
+
+  function clearFields() {
+    DEFAULTS.inputs.forEach(id => { if(el(id)) el(id).value = ''; });
+    recalc();
+  }
+
+  function exportPDF() { window.print(); }
+
+  function handleToggle() {
+    const on = el('bonus-toggle').checked;
+    const statusEl = el('toggle-status');
+    statusEl.textContent = on ? 'ON' : 'OFF';
+    statusEl.className = 'toggle-status ' + (on ? 'on' : 'off');
+    el('bonus-section').classList.toggle('visible', on);
+    recalc();
+  }
+
+  function recalc() {
+    const revTarget    = rawVal('rev-target');
+    const revActual    = rawVal('rev-actual');
+    const baselinePct  = rawVal('baseline-nop-pct') / 100;
+    const nopTargetPct = rawVal('nop-target-pct') / 100;
+    const actualNopPct = rawVal('actual-nop-pct') / 100;
+    const bonusRate    = rawVal('bonus-rate') / 100;
+    const bonusOn      = el('bonus-toggle').checked;
+    const basisActual  = el('bonus-basis').value === 'actual';
+
+    const baselineNopDollar = revTarget > 0 ? revTarget * baselinePct : NaN;
+    el('baseline-nop-dollar').textContent = isFinite(baselineNopDollar) && revTarget > 0 ? fmt$(baselineNopDollar) : '—';
+
+    const nopTargetDollar = revTarget > 0 ? revTarget * nopTargetPct : NaN;
+    el('nop-target-dollar').textContent = isFinite(nopTargetDollar) && revTarget > 0 ? fmt$(nopTargetDollar) : '—';
+
+    const nopGainTarget = (isFinite(nopTargetDollar) && isFinite(baselineNopDollar))
+      ? nopTargetDollar - baselineNopDollar : NaN;
+    setComputed('nop-gain-target', nopGainTarget, true);
+
+    const actualNopDollar = revActual > 0 ? revActual * actualNopPct : NaN;
+    el('actual-nop-dollar').textContent = isFinite(actualNopDollar) && revActual > 0 ? fmt$(actualNopDollar) : '—';
+
+    const actualNopAtBaseline = revActual > 0 && baselinePct > 0 ? revActual * baselinePct : NaN;
+    el('actual-nop-at-baseline').textContent = isFinite(actualNopAtBaseline) ? fmt$(actualNopAtBaseline) : '—';
+
+    const nopGainActual = (isFinite(actualNopDollar) && isFinite(actualNopAtBaseline))
+      ? actualNopDollar - actualNopAtBaseline : NaN;
+    setComputed('nop-gain-actual', nopGainActual, true);
+
+    const gainForBonus = basisActual ? nopGainActual : nopGainTarget;
+    const totalBonus = (bonusOn && isFinite(gainForBonus) && gainForBonus > 0)
+      ? gainForBonus * bonusRate : NaN;
+
+    el('bonus-gain-used').textContent = bonusOn && isFinite(gainForBonus) ? fmt$(gainForBonus) : '—';
+    el('bonus-rate-display').textContent = bonusOn && bonusRate > 0 ? fmtPct(bonusRate) : '—';
+    el('total-bonus').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus) : (bonusOn ? '$0' : '—');
+
+    const revAttain = (revTarget > 0 && revActual > 0) ? revActual / revTarget : NaN;
+    el('rev-attain-val').textContent = fmtPct(revAttain);
+    el('rev-attain-sub').textContent = (isFinite(revAttain) && revTarget > 0)
+      ? fmt$(revActual) + ' of ' + fmt$(revTarget) : '';
+
+    const nopAttain = (nopTargetPct > 0 && actualNopPct > 0) ? actualNopPct / nopTargetPct : NaN;
+    el('nop-attain-val').textContent = fmtPct(nopAttain);
+    el('nop-attain-sub').textContent = (isFinite(nopAttain) && nopTargetPct > 0)
+      ? fmtPct(actualNopPct) + ' actual vs ' + fmtPct(nopTargetPct) + ' target' : '';
+
+    el('nop-gain-val').textContent = isFinite(nopGainActual) ? fmt$(nopGainActual) : '—';
+    el('nop-gain-sub').textContent = isFinite(nopGainActual)
+      ? (nopGainActual >= 0 ? 'Above baseline NOP' : 'Below baseline NOP') : '';
+
+    el('bonus-summary-val').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus)
+      : (bonusOn ? '$0' : '—');
+    el('bonus-summary-sub').textContent = (bonusOn && isFinite(totalBonus) && bonusRate > 0)
+      ? fmtPct(bonusRate) + ' of ' + (basisActual ? 'actual' : 'target') + ' NOP gain' : '';
+
+    colorMetric('mc-rev-attain', revAttain, { good: 1.0, warn: 0.85 });
+    colorMetric('mc-nop-attain', nopAttain, { good: 1.0, warn: 0.85 });
+    if (isFinite(nopGainActual)) {
+      const card = el('mc-nop-gain');
+      card.classList.remove('good','warn','bad','highlight');
+      card.classList.add(nopGainActual >= 0 ? 'good' : 'bad');
+    }
+    if (bonusOn && isFinite(totalBonus)) {
+      const card = el('mc-bonus-summary');
+      card.classList.remove('good','warn','bad','highlight');
+      card.classList.add(totalBonus > 0 ? 'good' : 'warn');
+    }
+  }
+
+  const CURRENCY_IDS = ['rev-target','rev-actual'];
+
+  function formatCurrency(input) {
+    const raw = input.value.replace(/,/g, '');
+    if (raw === '' || raw === '-') return;
+    const num = parseFloat(raw);
+    if (isNaN(num)) { input.value = ''; return; }
+    input.value = Math.floor(num).toLocaleString('en-US');
+  }
+
+  function unformatCurrency(input) {
+    input.value = input.value.replace(/,/g, '');
+  }
+
+  CURRENCY_IDS.forEach(id => {
+    const input = el(id);
+    input.addEventListener('focus', () => unformatCurrency(input));
+    input.addEventListener('blur', () => { formatCurrency(input); recalc(); });
+    input.addEventListener('keydown', e => {
+      const allowed = ['Backspace','Delete','Tab','Enter','ArrowLeft','ArrowRight','Home','End'];
+      if (allowed.includes(e.key)) return;
+      if (e.key >= '0' && e.key <= '9') return;
+      e.preventDefault();
+    });
+  });
+
+  ['baseline-nop-pct','nop-target-pct','actual-nop-pct','bonus-rate'].forEach(id => {
+    const inp = el(id);
+    if (inp) inp.addEventListener('input', recalc);
+  });
+
+  el('bonus-basis').addEventListener('change', recalc);
+
+  recalc();
+</script>
+</body>
+</html>
