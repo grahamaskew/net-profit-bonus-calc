@@ -1156,7 +1156,7 @@ select {
     employees = Array.isArray(s.employees)
       ? s.employees.map(e => ({
           name: String(e.name ?? ''), tenure: String(e.tenure ?? ''),
-          position: String(e.position ?? ''), owner: String(e.owner ?? '')
+          position: String(e.position ?? ''), owner: num(e.owner) === 0 ? '' : String(e.owner ?? '')
         }))
       : [];
     renderEmployees();
@@ -1224,6 +1224,8 @@ select {
   // A field's numeric value; an empty Owner elective counts as 0, other empty fields are NaN (not entered).
   const fieldVal = (e, f) => (f.blankIsZero && String(e[f.key] ?? '').trim() === '') ? 0 : num(e[f.key]);
   const EMP_FIELD = Object.fromEntries(EMP_FIELDS.map(f => [f.key, f]));
+  // Stored form of a cell: fixed decimals, and an Owner elective of 0 stored empty so it shows the dash.
+  const storeVal = (v, f) => { const t = toDp(v, f.dp); return f.blankIsZero && num(t) === 0 ? '' : t; };
   const isBlankRow = e => !e.name.trim() && EMP_FIELDS.every(f => String(e[f.key]).trim() === '');
 
   function rowProblems(e) {
@@ -1337,13 +1339,14 @@ select {
     inp.min = f.min;
     if (isFinite(f.max)) inp.max = f.max;
     inp.step = f.dp === 2 ? '0.01' : '0.1';
-    // Only Owner elective treats empty as 0, so only it gets a zero hint; elsewhere a dash means 'not entered'.
-    inp.placeholder = f.blankIsZero ? '0.0' : '—';
+    // Dash = empty. For Owner elective that means 0 (0 is stored empty); elsewhere it means not entered.
+    inp.placeholder = '—';
     inp.value = e[f.key];
     inp.addEventListener('input', () => { e[f.key] = inp.value; recalc(); });
     inp.addEventListener('blur', () => {
-      const fixed = toDp(inp.value, f.dp);
-      if (fixed && fixed !== inp.value) { inp.value = fixed; e[f.key] = fixed; recalc(); }
+      const fixed = storeVal(inp.value, f);
+      const zeroCleared = f.blankIsZero && inp.value !== '' && fixed === '' && num(inp.value) === 0;
+      if ((fixed || zeroCleared) && fixed !== inp.value) { inp.value = fixed; e[f.key] = fixed; recalc(); }
     });
     const td = document.createElement('td');
     td.appendChild(inp);
@@ -1493,7 +1496,7 @@ select {
       const name = String(r[cols.name] ?? '').trim();
       if (!name || /^totals?\b/i.test(name)) break;
       const e = { name, tenure: '', position: '', owner: '' };
-      EMP_FIELDS.forEach(f => { if (f.key in cols) e[f.key] = toDp(r[cols[f.key]], f.dp); });
+      EMP_FIELDS.forEach(f => { if (f.key in cols) e[f.key] = storeVal(r[cols[f.key]], f); });
       out.push(e);
     }
     if (!out.length) throw new Error('tab "' + tab + '" has no names under its header row.');

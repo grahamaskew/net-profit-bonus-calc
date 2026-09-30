@@ -44,7 +44,7 @@ A single `index.html`: a sign-in screen, then a navy top bar and six numbered ca
 - Result: NOP gain used, % applied, Total Bonus Pool (2 dp). Zero or negative gain → 0.00.
 
 ### ④ Employee Bonuses (collapsed on load)
-- Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (0–5, 1 dp; empty counts as 0), % share (1 dp), Bonus amount (2 dp).
+- Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (0–5, 1 dp; empty counts as 0, and 0 is shown as a dash), % share (1 dp), Bonus amount (2 dp).
 - With no rows: a start panel offering Upload XLSX / CSV, or Skip upload — enter manually.
 - Share and amount maths: see revision note 2026-09-30.
 
