@@ -495,6 +495,7 @@ select {
 }
 .btn-light:hover { border-color: var(--accent-mid); background: var(--accent-light); }
 .tbl-msg { font-size: 12px; color: var(--text-muted); }
+.tbl-actions.sheet-pick { border-top: none; border-bottom: 1px solid var(--border); background: var(--accent-light); }
 .tbl-msg.err { color: var(--red); font-weight: 600; }
 .tbl-msg.ok  { color: #166534; }
 
@@ -876,9 +877,15 @@ select {
       <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div id="emp-body" class="hidden">
+      <div class="tbl-actions sheet-pick hidden" id="emp-sheet-pick">
+        <span class="tbl-msg">Import which tab of <b id="emp-sheet-file"></b>?</span>
+        <select id="emp-sheet-select" aria-label="Tab to import"></select>
+        <button type="button" class="btn-primary" id="emp-sheet-import">Import</button>
+        <button type="button" class="btn-light" id="emp-sheet-cancel">Cancel</button>
+      </div>
       <div class="emp-empty" id="emp-empty">
         <div class="emp-empty-title">Start the employee census</div>
-        <p>Upload an XLSX or CSV (only a Name column is required), or skip the upload and enter people by hand.</p>
+        <p>Upload an XLSX or CSV (needs a Name column, or names beside a Years/Tenure column), or skip the upload and enter people by hand.</p>
         <div class="emp-empty-actions">
           <button type="button" class="btn-primary" id="emp-empty-upload">Upload XLSX / CSV</button>
           <button type="button" class="btn-light" id="emp-skip">Skip upload &mdash; enter manually</button>
@@ -1382,6 +1389,12 @@ select {
   function setEmpMsg(text, kind) {
     // A sticky message (upload result) survives recalcs until the next edit to the rows.
     const m = el('emp-msg');
+    if (!text) {   // clearing: drop the sticky flag so the live status message returns
+      delete m.dataset.sticky;
+      el('emp-empty-msg').textContent = '';
+      recalc();
+      return;
+    }
     m.textContent = text;
     m.className = 'tbl-msg ' + (kind || '');
     m.dataset.sticky = '1';
@@ -1439,11 +1452,13 @@ select {
     return xlsxLoading;
   }
 
-  // Header matching: Name is required; the other three are optional and left blank when absent.
+  // Header matching. Synonyms cover the historical bonus workbook: "Years" = tenure,
+  // "Extra Point(s)" = owner elective. Name is required, but when there's no "Name" header
+  // the column just left of the tenure column is taken as names (older tabs leave it blank).
   const HEADER_TESTS = [
     { key: 'name',     label: 'Name',           test: h => /\bname\b/.test(h) },
-    { key: 'tenure',   label: 'Tenure',         test: h => /tenure/.test(h) },
-    { key: 'owner',    label: 'Owner elective', test: h => /owner|elective/.test(h) },
+    { key: 'tenure',   label: 'Tenure',         test: h => /tenure|\byears?\b/.test(h) },
+    { key: 'owner',    label: 'Owner elective', test: h => /owner|elective|extra\s*points?/.test(h) },
     { key: 'position', label: 'Position level', test: h => /position|level/.test(h) }
   ];
 
@@ -1456,26 +1471,61 @@ select {
       const idx = exact >= 0 ? exact : heads.findIndex((h, i) => !used.has(i) && t.test(h));
       if (idx >= 0) { cols[t.key] = idx; used.add(idx); }
     });
+    if (!('name' in cols) && cols.tenure > 0 && !used.has(cols.tenure - 1)) {
+      cols.name = cols.tenure - 1;
+      cols.nameInferred = true;
+    }
     return cols;
   }
 
-  function importRows(grid) {
+  function importRows(grid, tab) {
     const headerAt = grid.findIndex(r => 'name' in mapHeaders(r));
-    if (headerAt < 0) throw new Error('No "Name" column found in the first sheet.');
+    if (headerAt < 0) throw new Error('tab "' + tab + '" has no Name column (or Years/Tenure column to find names beside).');
     const cols = mapHeaders(grid[headerAt]);
     const out = [];
-    grid.slice(headerAt + 1).forEach(r => {
+    // The people list is the unbroken block under the header: stop at the first blank name or
+    // a Total row, so summary blocks further down the sheet aren't read as people.
+    for (const r of grid.slice(headerAt + 1)) {
       const name = String(r[cols.name] ?? '').trim();
-      if (!name) return;
+      if (!name || /^totals?\b/i.test(name)) break;
       const e = { name, tenure: '', position: '', owner: '' };
       EMP_FIELDS.forEach(f => { if (f.key in cols) e[f.key] = toDp(r[cols[f.key]], f.dp); });
       out.push(e);
-    });
-    if (!out.length) throw new Error('The Name column has no names under it.');
+    }
+    if (!out.length) throw new Error('tab "' + tab + '" has no names under its header row.');
     const inCardOrder = ['name', 'tenure', 'position', 'owner'].map(k => HEADER_TESTS.find(t => t.key === k));
-    const found = inCardOrder.filter(t => t.key in cols).map(t => t.label);
+    const found = inCardOrder.filter(t => t.key in cols)
+      .map(t => t.label + (t.key === 'name' && cols.nameInferred ? ' (unlabelled column)' : ''));
     const missing = inCardOrder.filter(t => !(t.key in cols)).map(t => t.label);
     return { rows: out, found, missing };
+  }
+
+  let pendingBook = null;   // { XLSX, wb, fileName } while the tab picker is open
+
+  function closeSheetPicker() {
+    pendingBook = null;
+    el('emp-sheet-pick').classList.add('hidden');
+  }
+
+  function importFromTab(XLSX, wb, tab, fileName) {
+    if (employees.some(e => !isBlankRow(e)) &&
+        !confirm('Replace the current employee rows with tab "' + tab + '" of ' + fileName + '?')) return;
+    try {
+      const grid = XLSX.utils.sheet_to_json(wb.Sheets[tab], { header: 1, raw: true, defval: '', blankrows: true });
+      const res = importRows(grid, tab);
+      closeSheetPicker();
+      employees = res.rows;
+      renderEmployees();
+      recalc();
+      const flagged = employees.filter(e => rowProblems(e).length).length;
+      setEmpMsg('Imported ' + res.rows.length + (res.rows.length === 1 ? ' row' : ' rows') +
+        (wb.SheetNames.length > 1 ? ' from tab "' + tab + '"' : '') +
+        ' — matched ' + res.found.join(', ') +
+        (res.missing.length ? '; not in file: ' + res.missing.join(', ') + ' (enter by hand)' : '') + '.' +
+        (flagged ? ' ' + flagged + ' need fixing (highlighted).' : ''), flagged ? 'err' : 'ok');
+    } catch (err) {
+      setEmpMsg('Upload failed: ' + err.message, 'err');
+    }
   }
 
   el('emp-upload-btn').addEventListener('click', () => el('emp-file').click());
@@ -1483,25 +1533,29 @@ select {
     const file = ev.target.files[0];
     ev.target.value = '';   // allow re-uploading the same file
     if (!file) return;
-    if (employees.some(e => !isBlankRow(e)) &&
-        !confirm('Replace the current employee rows with ' + file.name + '?')) return;
+    closeSheetPicker();
     try {
       setEmpMsg('Reading ' + file.name + '…');
       const XLSX = await loadXlsx();
       const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const grid = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
-      const res = importRows(grid);
-      employees = res.rows;
-      renderEmployees();
-      recalc();
-      setEmpMsg('Imported ' + res.rows.length + (res.rows.length === 1 ? ' row' : ' rows') +
-        ' — matched ' + res.found.join(', ') +
-        (res.missing.length ? '; not in file: ' + res.missing.join(', ') + ' (enter by hand)' : '') + '.', 'ok');
+      if (wb.SheetNames.length === 1) { importFromTab(XLSX, wb, wb.SheetNames[0], file.name); return; }
+      // Several tabs: let the user pick; the last tab (usually the newest year) is preselected.
+      pendingBook = { XLSX, wb, fileName: file.name };
+      const sel = el('emp-sheet-select');
+      sel.replaceChildren(...wb.SheetNames.map(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; return o; }));
+      sel.value = wb.SheetNames[wb.SheetNames.length - 1];
+      el('emp-sheet-file').textContent = file.name;
+      el('emp-sheet-pick').classList.remove('hidden');
+      setEmpMsg('');
+      sel.focus();
     } catch (err) {
       setEmpMsg('Upload failed: ' + err.message, 'err');
     }
   });
+  el('emp-sheet-import').addEventListener('click', () => {
+    if (pendingBook) importFromTab(pendingBook.XLSX, pendingBook.wb, el('emp-sheet-select').value, pendingBook.fileName);
+  });
+  el('emp-sheet-cancel').addEventListener('click', closeSheetPicker);
 
   renderEmployees();
   recalc();

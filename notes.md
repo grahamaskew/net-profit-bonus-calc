@@ -173,6 +173,10 @@ No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net
 - % share = score ÷ sum of scores, so the shares always total 100%. Bonus amount = Total Bonus Pool × share, split in whole cents with largest remainder so the rows sum exactly to the pool.
 - No shares appear until every non-blank row is valid (name, tenure ≥ 0, level/owner 1–5) and the weightings are valid. Fully blank rows are ignored.
 - With no rows, the card shows a start panel: Upload XLSX / CSV, or Skip upload — enter manually (adds a first row). Deleting the last row brings the panel back.
+- Upload, multi-tab workbooks: a tab picker opens with the last tab preselected.
+- Header synonyms from the historical "Yearly Bonus Schedule" workbook: Years = Tenure, Extra Point(s) = Owner elective. With no Name header, the column left of Years is read as names.
+- Import reads only the unbroken block under the header row, stopping at the first blank name or a Total row, so the summary blocks below are ignored.
+- Out-of-range values (e.g. Position 0) import and are flagged.
 - Upload (XLSX/CSV, SheetJS lazy-loaded from cdnjs) replaces all rows. It uses the first sheet and matches columns by header name. Only Name is required; unmatched columns are ignored.
 - Rows and weightings autosave in the Firestore state (`employees`, `weights`). Reset also clears them (it asks first); Clear does not.
 - Formats: %, level, owner → 1 dp; tenure, bonus amount and Total Bonus Pool (card ③ and summary) → 2 dp with commas. Other amounts stay whole numbers. The "$" symbol was removed from every value, input prefix and label.
