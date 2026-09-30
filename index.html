@@ -900,7 +900,7 @@ select {
               <th>Name</th>
               <th>Tenure (years)</th>
               <th>Position level (1&ndash;5)</th>
-              <th>Owner elective (1&ndash;5)</th>
+              <th>Owner elective (0&ndash;5)</th>
               <th>% share</th>
               <th>Bonus amount</th>
               <th class="del-col"></th>
@@ -1207,7 +1207,7 @@ select {
   const EMP_FIELDS = [
     { key: 'tenure',   dp: 2, min: 0, max: Infinity },
     { key: 'position', dp: 1, min: 1, max: 5 },
-    { key: 'owner',    dp: 1, min: 1, max: 5 }
+    { key: 'owner',    dp: 1, min: 0, max: 5 }   // 0 = no owner points; blank is still 'not entered'
   ];
   let employees = [];   // [{ name, tenure, position, owner }] — values kept as entered strings
 
