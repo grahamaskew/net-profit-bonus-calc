@@ -1,5 +1,7 @@
 # Net Profit Bonus Calculator (Firebase edition)
 
+**Status (2026-09-30): set up.** Firebase project `nop-bonus-calc-gmvz3` is live and its config is in `index.html`. The site is hosted on GitHub Pages at <https://grahamaskew.github.io/net-profit-bonus-calc/>. Redeploy rules and the auth provider with `firebase deploy --only firestore:rules,auth`. The steps below are for recreating it from scratch.
+
 A single static page (`index.html`) with:
 
 - Email + password sign-in — each user sees only their own calculator.

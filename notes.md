@@ -18,45 +18,42 @@
 
 ## 2. Page Structure
 
-The page is a single `index.html` file with no external scripts. It is divided into four numbered card sections, plus a persistent header:
+A single `index.html`: a sign-in screen, then a navy top bar and six numbered cards.
 
-### Header
-- VITAL logo (embedded base64 WebP)
-- Subtitle: "Net Profit Bonus Calculator"
-- Three action buttons: **Reset** (clears all fields and resets defaults), **Clear** (clears input fields only), **Export PDF** (triggers `window.print()`)
+### Sign-in screen
+- Email + password (Firebase Auth), with a toggle between "Sign in" and "Create an account".
+- Each user sees only their own calculator (Firestore `calcs/{uid}`).
 
-### Section ① — Target Revenue vs Actual
-- Two-column comparison layout
-- Left: Annual Revenue Target (editable currency input)
-- Right: Actual Annual Revenue (editable currency input)
-- Legend explaining editable vs calculated fields
+### Top bar
+- Title "Net Profit Bonus Calculator" / "NOP Performance & Bonus Pool". No logo.
+- Save status (Loading… / Saving… / Saved to your account / error) and the signed-in email.
+- **Reset**: clears everything, including employee rows and weightings, after a confirm.
+- **Clear**: clears the six top input fields only.
+- **Export PDF**: `window.print()`.
+- **Sign out**: flushes or awaits any pending save first.
 
-### Section ② — Net Operating Profit (NOP)
-- Two-column comparison layout, rows aligned across both columns using a hidden spacer row on the right
-- **Left column (NOP Targets):**
-  - Baseline NOP % (editable) → Baseline NOP $ (calculated)
-  - NOP Target % (editable) → NOP Target $ (calculated)
-  - NOP Gain / Loss (Target) (calculated)
-- **Right column (Actual NOP):**
-  - [Spacer row — aligns with Baseline NOP % input]
-  - Actual NOP at Baseline % = Actual Revenue × Baseline NOP % (calculated)
-  - Actual NOP % (editable) → Actual NOP $ (calculated)
-  - NOP Gain / Loss (Actual) = Actual NOP $ − Actual NOP at Baseline $ (calculated)
+### ① Target Revenue — Target vs Actual
+- Annual Revenue Target and Actual Annual Revenue (editable, comma-formatted whole numbers).
 
-### Section ③ — Bonus Pool
-- Toggle (show/hide) labelled "Allocate $ to bonus pool"
-- When ON, reveals a two-column bonus section:
-  - Left: % NOP gain → bonus (editable rate), Applied to selector (Actual or Target NOP Gain)
-  - Right: NOP gain used (calculated), % NOP gain applied (calculated), Total Bonus Pool $ (calculated)
-- Bonus is only calculated when NOP gain is positive; zero or negative gain yields no bonus
+### ② Net Operating Profit (NOP)
+- Left: Baseline NOP % → Baseline NOP; NOP Target % → NOP Target; NOP Gain / Loss (Target).
+- Right: [spacer row]; Actual NOP at Baseline % (= actual revenue × baseline %); Actual NOP % → Actual NOP; NOP Gain / Loss (Actual) = Actual NOP − Actual NOP at Baseline %.
 
-### Section ④ — Performance Summary
-- 2×2 grid of colour-coded metric cards:
-  - **Revenue Attainment** — Actual / Target revenue
-  - **NOP % Attainment** — Actual NOP % / Target NOP %
-  - **Actual NOP Gain** — dollar gain above baseline
-  - **Total Bonus Pool** — bonus $ if allocated
-- Cards turn green (good), amber (warn), or red (bad) based on thresholds
+### ③ Bonus Pool
+- Toggle "Allocate to bonus pool". When on: % NOP gain → bonus rate, and a basis selector (actual or target gain).
+- Result: NOP gain used, % applied, Total Bonus Pool (2 dp). Zero or negative gain → 0.00.
+
+### ④ Employee Bonuses (collapsed on load)
+- Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (1–5, 1 dp), % share (1 dp), Bonus amount (2 dp).
+- With no rows: a start panel offering Upload XLSX / CSV, or Skip upload — enter manually.
+- Share and amount maths: see revision note 2026-09-30.
+
+### ⑤ Weighting (collapsed on load)
+- Tenure / Position level / Owner elective %. Each must be ≥ 0.5%, and together they must total exactly 100.0%.
+
+### ⑥ Performance Summary
+- 2×2 colour-coded cards: Revenue Attainment, NOP % Attainment, Actual NOP Gain, Total Bonus Pool.
+- Green / amber / red thresholds: ≥ 100% / ≥ 85% / below.
 
 ---
 
@@ -66,22 +63,19 @@ The page is a single `index.html` file with no external scripts. It is divided i
 This tool was built to match an existing VITAL design system established in a separate bid pricing worksheet (`index.html`). All visual decisions below were carried over from or are consistent with that system.
 
 ### Colour Palette
-All colours are defined as CSS custom properties on `:root`:
+"Executive SaaS" palette. All colours are CSS custom properties on `:root`:
 
 | Variable | Value | Usage |
 |---|---|---|
-| `--vital-green` | `#6687e1` | Primary accent, card headers, buttons, computed totals |
-| `--vital-green-dark` | `#4a6bc4` | Button hover state |
-| `--vital-green-light` | `#eef1fc` | Highlighted card backgrounds |
-| `--bg` | `#f5f6fd` | Page background |
-| `--surface` | `#ffffff` | Card surface |
-| `--surface-alt` | `#f4f6fd` | Right comparison column, computed field backgrounds |
-| `--input-bg` | `#cfe2f3` | Editable input background (blue tint) |
-| `--input-border` | `#cc0000` | Editable input border (red) — deliberate visual signal |
-| `--amber` | `#b45309` | Warning state |
-| `--red` | `#b91c1c` | Error / bad state, negative values |
+| `--navy` | `#102A43` | Top bar, dark card headers, login hero |
+| `--accent` | `#2F80ED` | Accent card headers, primary buttons, computed totals |
+| `--teal` | `#2DD4BF` | Login hero accent, "saved" dot |
+| `--bg-page` / `--bg-card` / `--bg-subtle` | `#F6F8FB` / `#FFFFFF` / `#F1F5F9` | Page, card, computed-field backgrounds |
+| `--input-bg` | `#EBF4FE` | Editable input background |
+| `--input-border` | `#DC2626` | Editable input border (red) — deliberate visual signal |
+| `--amber` / `--red` | `#B45309` / `#B91C1C` | Warning / bad state, negative values |
 
-**Note:** The red input border (`#cc0000`) is intentional — it distinguishes editable fields from calculated outputs at a glance and matches the original design system.
+**Note:** The red input border is intentional. It distinguishes editable fields from calculated outputs at a glance.
 
 ### Typography
 - **Body / UI font:** Geist (loaded from Google Fonts), weights 300–700
@@ -106,8 +100,8 @@ Plus two bonus parameters (rate % and basis selector) when the bonus pool is tog
 ### PDF Export
 - `window.print()` is used for PDF export
 - `@page { margin: 0.5in; size: auto; }` suppresses the browser's native print header (title, URL, date/time stamp)
-- The Export PDF and other action buttons are hidden on print via `.header-actions { display: none; }`
-- The tool's own `<header>` (logo + subtitle) is retained and visible in the PDF output
+- The whole top bar (actions, save status, sign-out) and the add/upload/delete controls are hidden on print
+- Collapsed cards print collapsed
 - `print-color-adjust: exact` is applied to metric cards to preserve background colours in print
 
 ---
@@ -143,26 +137,26 @@ The following prompts from the build session most significantly shaped the final
 
 | Dependency | Type | How loaded | Notes |
 |---|---|---|---|
-| **Geist** | Font | Google Fonts CDN (`@import url(...)`) | Weights 300, 400, 500, 600, 700. Requires internet connection to load; falls back to `sans-serif` |
-| **Courier New** | Font | System font | Used for all numeric/computed values. No external load required |
+| **Geist** | Font | Google Fonts `<link>` | Falls back to system sans-serif |
+| **Courier New** | Font | System font | All numeric/computed values |
+| **Firebase JS SDK 10.14.1** (app, auth, firestore) | ES modules | `https://www.gstatic.com/firebasejs/…` | Sign-in and per-user save |
+| **SheetJS 0.18.5** | Script | cdnjs, lazy-loaded on first upload only | Reads XLSX / CSV |
 
-**No JavaScript libraries.** All interactivity (calculations, toggle, currency formatting, colour logic) is written in vanilla JS in a single inline `<script>` block at the bottom of `index.html`.
+No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net-profit-bonus-calc`), and every push to `main` deploys.
 
-**No build tools, bundlers, or frameworks.** The file is entirely self-contained and can be opened directly in any modern browser.
+**Firebase project:** `nop-bonus-calc-gmvz3` (Firestore `nam5`).
+- Rules and the email/password provider are deployed from `firebase.json`: `firebase deploy --only firestore:rules,auth`.
+- Authorized domains: localhost, the project's firebaseapp.com / web.app domains, and grahamaskew.github.io.
 
 ---
 
 ## 6. Known Issues / To Do
 
-- **Firefox PDF headers:** The `@page` CSS rule suppresses browser print headers in Chrome, Edge, and Safari. Firefox respects the margin but may still render its own header/footer depending on user print settings. Users on Firefox may need to manually uncheck "Print headers and footers" in the print dialog.
-
-- **Negative value formatting:** `fmtDollar()` renders negative numbers as `$-20,000` (JavaScript's native `toLocaleString()` behaviour) rather than `-$20,000`. This is cosmetically non-standard but functionally correct. Negative gain values are additionally highlighted in red via the `.negative` CSS class, so the visual treatment is unambiguous. Could be addressed with a sign-check and string manipulation if strict formatting is required.
-
-- **Logo:** The VITAL logo is embedded as a base64 WebP string copied from the original bid pricing worksheet. If the logo changes, the base64 string in the `<img src="...">` tag in the `<header>` will need to be updated.
-
-- **No input validation:** Percentage inputs accept values above 100% or below 0%. There is no user-facing error for nonsensical combinations (e.g. Baseline NOP % > NOP Target %). This is by design for flexibility but could be revisited if guardrails are needed.
-
-- **No persistent state:** The tool does not save state between sessions. All inputs are cleared on page reload. If persistence is needed, `localStorage` or a backend would be required.
+- **Firefox PDF headers:** `@page` suppresses print headers in Chrome, Edge and Safari. Firefox may still add them unless "Print headers and footers" is unchecked.
+- **Edits made during "Loading…" are lost:** the saved copy replaces the screen when it arrives.
+- **Load failure = read-only session:** if the saved copy can't be loaded, autosave stays off (so a blank calculator can't overwrite it) until reload.
+- **No password reset / email verification:** sign-in is email + password only.
+- **Input validation is limited in ①–③:** percentages above 100% or baseline > target are accepted. Card ④ and ⑤ inputs are validated.
 
 ---
 

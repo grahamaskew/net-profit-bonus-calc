@@ -663,9 +663,9 @@ select {
         <label for="auth-password">Password</label>
         <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <button class="btn-primary" id="auth-submit">Sign in</button>
+      <button type="button" class="btn-primary" id="auth-submit">Sign in</button>
       <div class="auth-toggle">
-        <span id="auth-toggle-text">New here?</span> <button class="link-btn" id="auth-toggle-btn">Create an account</button>
+        <span id="auth-toggle-text">New here?</span> <button type="button" class="link-btn" id="auth-toggle-btn">Create an account</button>
       </div>
     </div>
   </div>
@@ -699,7 +699,7 @@ select {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           Export PDF
         </button>
-        <button class="btn" id="sign-out-btn">Sign out</button>
+        <button type="button" class="btn" id="sign-out-btn">Sign out</button>
       </div>
     </div>
   </div>
@@ -1519,14 +1519,14 @@ import {
 
 // Not a secret: this ships in client code by design. Firestore Security Rules
 // (see firestore.rules) are what actually protect each user's data.
-// Replace with the config from your Firebase project — see README.md.
+// Project: nop-bonus-calc-gmvz3 (see README.md).
 const FIREBASE_CONFIG = {
-  apiKey: "REPLACE_WITH_API_KEY",
-  authDomain: "REPLACE_WITH_PROJECT_ID.firebaseapp.com",
-  projectId: "REPLACE_WITH_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "REPLACE_WITH_SENDER_ID",
-  appId: "REPLACE_WITH_APP_ID"
+  apiKey: "AIzaSyA5C4eAmEiLLz7uEgxdNIJsj_Wwt1KvSaI",
+  authDomain: "nop-bonus-calc-gmvz3.firebaseapp.com",
+  projectId: "nop-bonus-calc-gmvz3",
+  storageBucket: "nop-bonus-calc-gmvz3.firebasestorage.app",
+  messagingSenderId: "1082756868896",
+  appId: "1:1082756868896:web:00ffac8d0d1313bbe94545"
 };
 
 const $ = id => document.getElementById(id);
@@ -1537,6 +1537,7 @@ let user = null;
 let authMode = "signin";   // "signin" | "signup"
 let saveTimer = null;
 let savePending = false;
+let saveInFlight = null;   // promise of the write currently in progress, if any
 
 function showAuthMsg(text, kind) {
   const holder = $("auth-msg-holder");
@@ -1571,31 +1572,39 @@ function scheduleSave() {
   saveTimer = setTimeout(saveNow, 900);
 }
 
+// Resolves true when the write landed, false when it failed — callers that must not lose data check it.
 function saveNow() {
-  if (!user) return Promise.resolve();
+  if (!user) return Promise.resolve(true);
   savePending = false;
   saveTimer = null;
-  return setDoc(doc(db, "calcs", user.uid), {
+  const p = setDoc(doc(db, "calcs", user.uid), {
     stateJson: JSON.stringify(window.getCalcState()),
     updatedAt: new Date().toISOString()
   }).then(() => {
     if (!savePending) setSaveStatus("saved", "Saved to your account");
+    return true;
   }).catch(err => {
     setSaveStatus("err", "Couldn't save — " + err.message);
-  });
+    return false;
+  }).finally(() => { if (saveInFlight === p) saveInFlight = null; });
+  saveInFlight = p;
+  return p;
 }
 
+// Resolves true only when the saved copy (or confirmed absence of one) is on screen.
+// On failure autosave must stay off, or the next edit would overwrite the saved copy with a blank one.
 function loadOwnState() {
   return getDoc(doc(db, "calcs", user.uid)).then(snap => {
     let state = null;
-    if (snap.exists()) {
-      try { state = JSON.parse(snap.data().stateJson); } catch (e) { state = null; }
-    }
+    if (snap.exists()) state = JSON.parse(snap.data().stateJson);   // unreadable copy → catch below
     window.applyCalcState(state);   // no saved copy → blank calculator
     setSaveStatus("saved", snap.exists() ? "Saved to your account" : "New calculator");
-  }).catch(() => {
+    return true;
+  }).catch(err => {
+    console.error("load failed", err && (err.code || err.message));
     window.applyCalcState(null);
-    setSaveStatus("err", "Couldn't load your saved copy");
+    setSaveStatus("err", "Couldn't load your saved copy — changes are NOT being saved. Reload to try again.");
+    return false;
   });
 }
 
@@ -1612,9 +1621,9 @@ function onSignedIn(u) {
 
   window.applyCalcState(null);   // paint blank first — never flash stale numbers
   setSaveStatus("saving", "Loading…");
-  loadOwnState().then(() => {
+  loadOwnState().then(ok => {
     // Only start autosaving once the saved copy is on screen, so loading can't overwrite it.
-    window.onCalcChange = scheduleSave;
+    if (ok) window.onCalcChange = scheduleSave;
   });
 }
 
@@ -1640,11 +1649,16 @@ $("auth-submit").addEventListener("click", submitAuth);
   $(id).addEventListener("keydown", e => { if (e.key === "Enter") submitAuth(); });
 });
 
-$("sign-out-btn").addEventListener("click", () => {
-  // Flush any edit still waiting out its debounce so a quick sign-out never drops it.
+$("sign-out-btn").addEventListener("click", async () => {
+  // Flush any edit still waiting out its debounce, or wait for the write already under way,
+  // so a quick sign-out never drops it. If it fails, let the user decide.
   clearTimeout(saveTimer);
-  const flush = savePending ? saveNow() : Promise.resolve();
-  flush.then(() => signOut(auth)).then(() => location.reload());
+  // Firestore queues writes while offline instead of failing, so cap the wait.
+  const pending = savePending ? saveNow() : (saveInFlight || Promise.resolve(true));
+  const ok = await Promise.race([pending, new Promise(r => setTimeout(() => r(false), 8000))]);
+  if (!ok && !confirm("Your latest changes didn't save. Sign out anyway and lose them?")) return;
+  await signOut(auth);
+  location.reload();
 });
 
 window.addEventListener("beforeunload", e => {
