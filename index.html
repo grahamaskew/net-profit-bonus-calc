@@ -395,6 +395,116 @@ select {
   opacity: 1;
 }
 
+/* ── COLLAPSIBLE CARDS ── */
+.card-header.collapsible {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  font-family: var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+.card-header.collapsible .chev { margin-left: auto; transition: transform 0.2s; }
+.card-header.collapsible[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.card-header .hdr-note {
+  font-size: 10.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* ── TABLES (employees + weighting) ── */
+.tbl-wrap { overflow-x: auto; }
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tbl th {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  text-align: right;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.tbl th:first-child { text-align: left; }
+.tbl.tbl-right th:first-child { text-align: right; }
+.tbl td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--bg-page);
+  text-align: right;
+}
+.tbl td:first-child { text-align: left; }
+.tbl.tbl-right td:first-child { text-align: right; }
+.tbl input[type="text"].name-input {
+  font-family: var(--sans);
+  font-size: 13px;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  border-radius: 6px;
+  padding: 5px 8px;
+  width: 100%;
+  min-width: 140px;
+  outline: none;
+}
+.tbl input[type="number"] { width: 76px; }
+.tbl input.invalid { background: var(--red-light); box-shadow: 0 0 0 2px rgba(185,28,28,0.35); }
+.tbl .computed { display: inline-block; min-width: 90px; }
+.tbl tfoot td {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  font-weight: 700;
+  padding-top: 9px;
+}
+.tbl .del-btn {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.tbl .del-btn:hover { color: var(--red); }
+.tbl-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+.btn-light {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.btn-light:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+.tbl-msg { font-size: 12px; color: var(--text-muted); }
+.tbl-msg.err { color: var(--red); font-weight: 600; }
+.tbl-msg.ok  { color: #166534; }
+
+/* ── EMPLOYEE EMPTY STATE ── */
+.emp-empty { padding: 24px 16px; text-align: center; }
+.emp-empty-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.emp-empty p { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.emp-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+.emp-empty .btn-light { padding: 5px 14px; }
+
 /* ── LEGEND ── */
 .legend {
   display: flex;
@@ -418,7 +528,106 @@ select {
   border-color: var(--border);
 }
 
+/* ── LOGIN CARD ── */
+.hidden { display: none !important; }
+.login-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: var(--bg-page);
+  overflow-y: auto;
+}
+.auth-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(16,42,67,.13);
+  overflow: hidden;
+}
+.login-hero { background: var(--navy); padding: 2rem 2rem 1.75rem; }
+.login-hero-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 1.5rem;
+}
+.login-hero-title { font-size: 28px; font-weight: 600; color: #fff; line-height: 1.15; margin-bottom: 4px; letter-spacing: -0.3px; }
+.login-hero-sub { font-size: 22px; font-weight: 600; font-style: italic; color: var(--teal); line-height: 1.2; letter-spacing: -0.2px; }
+.login-form { padding: 1.75rem 2rem 2rem; display: flex; flex-direction: column; }
+.login-form p.sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 1.5rem; }
+.auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.1rem; }
+.auth-field label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.auth-field input {
+  font-family: var(--sans);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  padding: 8px 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.auth-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,128,237,.15); }
+.auth-msg { font-size: 13px; padding: 8px 12px; border-radius: 8px; margin-bottom: 1rem; background: var(--bg-subtle); color: var(--text-muted); }
+.auth-msg.err { background: var(--red-light); border: 1px solid #FCA5A5; color: var(--red); }
+.login-form .btn-primary {
+  justify-content: center;
+  width: 100%;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: .5rem;
+}
+.auth-toggle { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 1.1rem; }
+.link-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.link-btn:hover { text-decoration: underline; }
+
+/* ── SAVE STATUS ── */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--navy-text);
+}
+.header-user b { color: #fff; font-weight: 500; }
+.save-status { display: flex; align-items: center; gap: 6px; }
+.save-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--navy-text-dim); flex-shrink: 0; }
+.save-dot.saving { background: #FBBF24; }
+.save-dot.saved  { background: var(--teal); }
+.save-dot.err    { background: #F87171; }
+
 @media (max-width: 640px) {
+  .app-header { flex-direction: column; align-items: stretch; }
+  .header-right, .header-user { flex-wrap: wrap; }
+  .login-form { padding: 1.5rem 1.25rem 1.75rem; }
+  .login-hero { padding: 1.5rem 1.25rem 1.25rem; }
   .comparison { grid-template-columns: 1fr; }
   .comparison-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
   .metrics-grid { grid-template-columns: 1fr; }
@@ -427,13 +636,42 @@ select {
 @media print {
   @page { margin: 0.5in; size: auto; }
   body { background: white; }
-  .app-topbar { display: none !important; }
+  .app-topbar, .login-wrap { display: none !important; }
   .card { break-inside: avoid; border: 1px solid #ccc; border-radius: 0; box-shadow: none; }
   .metric-card { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .tbl-actions, .del-btn, .del-col, .chev, .emp-empty { display: none !important; }
 }
 </style>
 </head>
 <body>
+
+<div id="auth-screen" class="login-wrap hidden">
+  <div class="auth-wrap">
+    <div class="login-hero">
+      <span class="login-hero-label">NOP Performance &amp; Bonus Pool</span>
+      <div class="login-hero-title">Net Profit</div>
+      <div class="login-hero-sub">Bonus Calculator</div>
+    </div>
+    <div class="login-form">
+      <p class="sub">Sign in to see your own private calculator.</p>
+      <div id="auth-msg-holder"></div>
+      <div class="auth-field">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" placeholder="you@company.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="auth-submit">Sign in</button>
+      <div class="auth-toggle">
+        <span id="auth-toggle-text">New here?</span> <button class="link-btn" id="auth-toggle-btn">Create an account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app-root" class="hidden">
 
 <div class="app-topbar">
   <div class="app-topbar-inner">
@@ -445,6 +683,10 @@ select {
         </div>
       </div>
       <div class="header-right">
+        <div class="header-user">
+          <div class="save-status"><span class="save-dot" id="save-dot"></span><span id="save-text">Loading…</span></div>
+          <span id="who-text"></span>
+        </div>
         <button class="btn" onclick="resetWorksheet()" title="Clear all fields and reset to defaults">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
           Reset
@@ -457,6 +699,7 @@ select {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           Export PDF
         </button>
+        <button class="btn" id="sign-out-btn">Sign out</button>
       </div>
     </div>
   </div>
@@ -474,7 +717,6 @@ select {
         <div class="row">
           <span class="row-label strong">Annual Revenue Target</span>
           <div class="input-wrap">
-            <span class="input-suffix">$</span>
             <input type="text" id="rev-target" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
           </div>
         </div>
@@ -485,7 +727,6 @@ select {
         <div class="row">
           <span class="row-label strong">Actual Annual Revenue</span>
           <div class="input-wrap">
-            <span class="input-suffix">$</span>
             <input type="text" id="rev-actual" value="" class="no-spin currency-input" inputmode="numeric" placeholder="0">
           </div>
         </div>
@@ -493,7 +734,7 @@ select {
 
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-swatch"></div> Editable input (revenue $ and NOP %)</div>
+      <div class="legend-item"><div class="legend-swatch"></div> Editable input (revenue and NOP %)</div>
       <div class="legend-item"><div class="legend-swatch calc"></div> Calculated (read-only)</div>
     </div>
   </div>
@@ -514,7 +755,7 @@ select {
           </div>
         </div>
         <div class="row">
-          <span class="row-label">Baseline NOP $</span>
+          <span class="row-label">Baseline NOP</span>
           <span class="computed" id="baseline-nop-dollar">&mdash;</span>
         </div>
 
@@ -528,7 +769,7 @@ select {
           </div>
         </div>
         <div class="row">
-          <span class="row-label">NOP Target $</span>
+          <span class="row-label">NOP Target</span>
           <span class="computed" id="nop-target-dollar">&mdash;</span>
         </div>
 
@@ -562,7 +803,7 @@ select {
           </div>
         </div>
         <div class="row">
-          <span class="row-label">Actual NOP $</span>
+          <span class="row-label">Actual NOP</span>
           <span class="computed" id="actual-nop-dollar">&mdash;</span>
         </div>
 
@@ -581,7 +822,7 @@ select {
     <div class="card-header">&#9314; Bonus Pool</div>
 
     <div class="toggle-row">
-      <span class="toggle-label">Allocate $ to bonus pool</span>
+      <span class="toggle-label">Allocate to bonus pool</span>
       <label class="toggle-switch">
         <input type="checkbox" id="bonus-toggle" onchange="handleToggle()">
         <span class="toggle-track"></span>
@@ -620,7 +861,7 @@ select {
           </div>
           <div class="sep"></div>
           <div class="row">
-            <span class="row-label strong">Total Bonus Pool $</span>
+            <span class="row-label strong">Total Bonus Pool</span>
             <span class="computed bonus-total" id="total-bonus">&mdash;</span>
           </div>
         </div>
@@ -628,9 +869,94 @@ select {
     </div>
   </div>
 
-  <!-- SECTION 4: SUMMARY -->
+  <!-- SECTION 4: EMPLOYEE BONUSES (collapsed by default) -->
   <div class="card">
-    <div class="card-header accent">&#9315; Performance Summary</div>
+    <button type="button" class="card-header accent collapsible" aria-expanded="false" aria-controls="emp-body">
+      &#9315; Employee Bonuses <span class="hdr-note" id="emp-count"></span>
+      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="emp-body" class="hidden">
+      <div class="emp-empty" id="emp-empty">
+        <div class="emp-empty-title">Start the employee census</div>
+        <p>Upload an XLSX or CSV (only a Name column is required), or skip the upload and enter people by hand.</p>
+        <div class="emp-empty-actions">
+          <button type="button" class="btn-primary" id="emp-empty-upload">Upload XLSX / CSV</button>
+          <button type="button" class="btn-light" id="emp-skip">Skip upload &mdash; enter manually</button>
+        </div>
+        <span class="tbl-msg" id="emp-empty-msg"></span>
+      </div>
+      <div id="emp-table-wrap">
+      <div class="tbl-wrap">
+        <table class="tbl" id="emp-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Tenure (years)</th>
+              <th>Position level (1&ndash;5)</th>
+              <th>Owner elective (1&ndash;5)</th>
+              <th>% share</th>
+              <th>Bonus amount</th>
+              <th class="del-col"></th>
+            </tr>
+          </thead>
+          <tbody id="emp-rows"></tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td></td><td></td><td></td>
+              <td><span class="computed" id="emp-share-total">&mdash;</span></td>
+              <td><span class="computed bonus-total" id="emp-bonus-total">&mdash;</span></td>
+              <td class="del-col"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="tbl-actions">
+        <button type="button" class="btn-light" id="emp-add">+ Add row</button>
+        <button type="button" class="btn-light" id="emp-upload-btn">Upload XLSX / CSV</button>
+        <input type="file" id="emp-file" accept=".xlsx,.xls,.csv" class="hidden">
+        <span class="tbl-msg" id="emp-msg"></span>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: WEIGHTING (collapsed by default) -->
+  <div class="card">
+    <button type="button" class="card-header collapsible" aria-expanded="false" aria-controls="wt-body">
+      &#9316; Weighting <span class="hdr-note" id="wt-note"></span>
+      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="wt-body" class="hidden">
+      <div class="tbl-wrap">
+        <table class="tbl tbl-right">
+          <thead>
+            <tr>
+              <th>Tenure</th>
+              <th>Position level</th>
+              <th>Owner elective</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-tenure" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-position" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-owner" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
+              <td><span class="computed" id="wt-total">&mdash;</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-actions">
+        <span class="tbl-msg" id="wt-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: SUMMARY -->
+  <div class="card">
+    <div class="card-header accent">&#9317; Performance Summary</div>
     <div class="metrics-grid">
       <div class="metric-card highlight" id="mc-rev-attain">
         <div class="metric-title">Revenue Attainment<br><span style="font-weight:300">actual vs target</span></div>
@@ -657,13 +983,17 @@ select {
 
 </div>
 
+</div>
+
 <script>
   const DEFAULTS = {
     inputs: ['rev-target','rev-actual','baseline-nop-pct','nop-target-pct','actual-nop-pct','bonus-rate']
   };
 
-  const fmt$ = v => isNaN(v)||!isFinite(v) ? '—' : '$' + Math.round(v).toLocaleString();
+  const fmt$ = v => isNaN(v)||!isFinite(v) ? '—' : Math.round(v).toLocaleString('en-US');
   const fmtPct = v => isNaN(v)||!isFinite(v) ? '—' : (v*100).toFixed(1) + '%';
+  const fmt2 = v => isNaN(v)||!isFinite(v) ? '—'
+    : v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const el = id => document.getElementById(id);
   const rawVal = id => {
     const inp = el(id);
@@ -689,7 +1019,12 @@ select {
   }
 
   function resetWorksheet() {
+    if (employees.some(e => !isBlankRow(e)) &&
+        !confirm('Reset also removes every employee row and the weightings. Continue?')) return;
     DEFAULTS.inputs.forEach(id => { if(el(id)) el(id).value = ''; });
+    WEIGHT_IDS.forEach(id => { el(id).value = ''; });
+    employees = [];
+    renderEmployees();
     el('bonus-toggle').checked = false;
     el('bonus-basis').value = 'actual';
     handleToggle();
@@ -748,7 +1083,7 @@ select {
 
     el('bonus-gain-used').textContent = bonusOn && isFinite(gainForBonus) ? fmt$(gainForBonus) : '—';
     el('bonus-rate-display').textContent = bonusOn && bonusRate > 0 ? fmtPct(bonusRate) : '—';
-    el('total-bonus').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus) : (bonusOn ? '$0' : '—');
+    el('total-bonus').textContent = bonusOn && isFinite(totalBonus) ? fmt2(totalBonus) : (bonusOn ? '0.00' : '—');
 
     const revAttain = (revTarget > 0 && revActual > 0) ? revActual / revTarget : NaN;
     el('rev-attain-val').textContent = fmtPct(revAttain);
@@ -764,8 +1099,8 @@ select {
     el('nop-gain-sub').textContent = isFinite(nopGainActual)
       ? (nopGainActual >= 0 ? 'Above baseline NOP' : 'Below baseline NOP') : '';
 
-    el('bonus-summary-val').textContent = bonusOn && isFinite(totalBonus) ? fmt$(totalBonus)
-      : (bonusOn ? '$0' : '—');
+    el('bonus-summary-val').textContent = bonusOn && isFinite(totalBonus) ? fmt2(totalBonus)
+      : (bonusOn ? '0.00' : '—');
     el('bonus-summary-sub').textContent = (bonusOn && isFinite(totalBonus) && bonusRate > 0)
       ? fmtPct(bonusRate) + ' of ' + (basisActual ? 'actual' : 'target') + ' NOP gain' : '';
 
@@ -781,7 +1116,50 @@ select {
       card.classList.remove('good','warn','bad','highlight');
       card.classList.add(totalBonus > 0 ? 'good' : 'warn');
     }
+
+    // Pool handed to the employee split: blank when the pool is off, 0 when on but no positive gain.
+    recalcEmployees(bonusOn ? (isFinite(totalBonus) ? totalBonus : 0) : NaN);
+
+    // Autosave hook — set by the Firebase module once the user's saved copy has loaded.
+    if (window.onCalcChange) window.onCalcChange();
   }
+
+  // Everything a user can set, as plain data for Firestore.
+  function getCalcState() {
+    const inputs = {};
+    DEFAULTS.inputs.forEach(id => { inputs[id] = el(id).value.replace(/,/g, ''); });
+    const weights = {};
+    WEIGHT_IDS.forEach(id => { weights[id] = el(id).value; });
+    return {
+      inputs,
+      bonusOn: el('bonus-toggle').checked,
+      bonusBasis: el('bonus-basis').value,
+      weights,
+      employees: employees.map(e => ({ ...e }))
+    };
+  }
+
+  function applyCalcState(s) {
+    s = s || {};
+    const inputs = s.inputs || {};
+    DEFAULTS.inputs.forEach(id => { el(id).value = inputs[id] != null ? inputs[id] : ''; });
+    CURRENCY_IDS.forEach(id => formatCurrency(el(id)));
+    const weights = s.weights || {};
+    WEIGHT_IDS.forEach(id => { el(id).value = weights[id] != null ? weights[id] : ''; });
+    employees = Array.isArray(s.employees)
+      ? s.employees.map(e => ({
+          name: String(e.name ?? ''), tenure: String(e.tenure ?? ''),
+          position: String(e.position ?? ''), owner: String(e.owner ?? '')
+        }))
+      : [];
+    renderEmployees();
+    el('bonus-toggle').checked = !!s.bonusOn;
+    el('bonus-basis').value = s.bonusBasis === 'target' ? 'target' : 'actual';
+    handleToggle();
+  }
+
+  window.getCalcState = getCalcState;
+  window.applyCalcState = applyCalcState;
 
   const CURRENCY_IDS = ['rev-target','rev-actual'];
 
@@ -816,7 +1194,477 @@ select {
 
   el('bonus-basis').addEventListener('change', recalc);
 
+  /* ---------- employee bonuses + weighting ---------- */
+  const WEIGHT_IDS = ['wt-tenure','wt-position','wt-owner'];
+  const MIN_WEIGHT_TENTHS = 5;   // 0.5%
+  const EMP_FIELDS = [
+    { key: 'tenure',   dp: 2, min: 0, max: Infinity },
+    { key: 'position', dp: 1, min: 1, max: 5 },
+    { key: 'owner',    dp: 1, min: 1, max: 5 }
+  ];
+  let employees = [];   // [{ name, tenure, position, owner }] — values kept as entered strings
+
+  const fmtAmt2 = v => isFinite(v)
+    ? v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  const fmtPct1 = v => isFinite(v) ? (v * 100).toFixed(1) + '%' : '—';
+  const num = s => {
+    const t = String(s ?? '').replace(/,/g, '').trim();
+    if (t === '') return NaN;
+    const v = Number(t);   // Number, not parseFloat: '3abc' must be rejected, not read as 3
+    return isFinite(v) ? v : NaN;
+  };
+  const toDp = (s, dp) => { const v = num(s); return isFinite(v) ? v.toFixed(dp) : ''; };
+  const isBlankRow = e => !e.name.trim() && EMP_FIELDS.every(f => String(e[f.key]).trim() === '');
+
+  function rowProblems(e) {
+    const bad = [];
+    if (!e.name.trim()) bad.push('name');
+    EMP_FIELDS.forEach(f => {
+      const v = num(e[f.key]);
+      if (!isFinite(v) || v < f.min || v > f.max) bad.push(f.key);
+    });
+    return bad;
+  }
+
+  // Weights in integer tenths of a percent, so 33.3 + 33.3 + 33.4 is exactly 1000.
+  // Every column must carry at least 0.5% (5 tenths) — none may be switched off.
+  function readWeights() {
+    const tenths = WEIGHT_IDS.map(id => {
+      const v = num(el(id).value);
+      return isFinite(v) ? Math.round(v * 10) : NaN;
+    });
+    const anyBad = tenths.some(t => !isFinite(t) || t < MIN_WEIGHT_TENTHS || t > 1000);
+    const total = anyBad ? NaN : tenths.reduce((a, b) => a + b, 0);
+    return { tenths, total, ok: total === 1000 };
+  }
+
+  function recalcEmployees(pool) {
+    const w = readWeights();
+    el('wt-total').textContent = isFinite(w.total) ? (w.total / 10).toFixed(1) + '%' : '—';
+    el('wt-total').classList.toggle('negative', isFinite(w.total) && w.total !== 1000);
+    WEIGHT_IDS.forEach((id, i) => {
+      const v = el(id).value.trim();
+      el(id).classList.toggle('invalid', v !== '' && !(isFinite(w.tenths[i]) && w.tenths[i] >= MIN_WEIGHT_TENTHS && w.tenths[i] <= 1000));
+    });
+    let wMsg, wKind;
+    if (!isFinite(w.total)) { wMsg = 'Every column needs a weighting between 0.5% and 100%.'; wKind = 'err'; }
+    else if (w.total > 1000) { wMsg = 'Total is over 100% — reduce by ' + ((w.total - 1000) / 10).toFixed(1) + '%.'; wKind = 'err'; }
+    else if (w.total < 1000) { wMsg = 'Total must equal 100% — ' + ((1000 - w.total) / 10).toFixed(1) + '% still to allocate.'; wKind = 'err'; }
+    else { wMsg = 'Weightings total 100%.'; wKind = 'ok'; }
+    el('wt-msg').textContent = wMsg;
+    el('wt-msg').className = 'tbl-msg ' + wKind;
+    el('wt-note').textContent = w.ok ? '' : '· needs attention';
+
+    // Validate rows; fully blank rows are ignored rather than flagged.
+    const tbody = el('emp-rows');
+    const live = [];
+    let badRows = 0;
+    employees.forEach((e, i) => {
+      const tr = tbody.children[i];
+      const blank = isBlankRow(e);
+      const bad = blank ? [] : rowProblems(e);
+      if (tr) {
+        tr.querySelector('.name-input').classList.toggle('invalid', bad.includes('name'));
+        EMP_FIELDS.forEach(f => tr.querySelector('[data-key="' + f.key + '"]').classList.toggle('invalid', bad.includes(f.key)));
+      }
+      if (!blank) { if (bad.length) badRows++; else live.push(i); }
+    });
+
+    // Score = weighted sum of each column scaled to 0–1: tenure ÷ longest tenure, level ÷ 5, owner ÷ 5.
+    const shares = new Array(employees.length).fill(NaN);
+    let blocker = '';
+    if (!live.length && !badRows) blocker = 'Add employees or upload a file.';
+    else if (badRows) blocker = badRows + (badRows === 1 ? ' row needs' : ' rows need') + ' fixing (highlighted) — shares show once every row is complete.';
+    else if (!w.ok) blocker = 'Set the Weighting card to a 100% total to calculate shares.';
+    else {
+      const maxT = Math.max(...live.map(i => num(employees[i].tenure)));
+      const [wt, wp, wo] = w.tenths.map(t => t / 1000);
+      const score = i => {
+        const e = employees[i];
+        return wt * (maxT > 0 ? num(e.tenure) / maxT : 0) + wp * num(e.position) / 5 + wo * num(e.owner) / 5;
+      };
+      const sum = live.reduce((a, i) => a + score(i), 0);
+      if (sum > 0) live.forEach(i => { shares[i] = score(i) / sum; });
+      else blocker = 'Every score is zero — check the weightings.';
+    }
+
+    // Split the pool in whole cents; largest remainder makes the rows add back to the pool exactly.
+    const amounts = new Array(employees.length).fill(NaN);
+    if (isFinite(pool) && !blocker) {
+      const poolCents = Math.round(pool * 100);
+      const parts = live.map(i => ({ i, exact: poolCents * shares[i] }));
+      parts.forEach(p => { p.cents = Math.floor(p.exact); });
+      let left = poolCents - parts.reduce((a, p) => a + p.cents, 0);
+      [...parts].sort((a, b) => (b.exact - b.cents) - (a.exact - a.cents))
+        .forEach(p => { if (left > 0) { p.cents++; left--; } });
+      parts.forEach(p => { amounts[p.i] = p.cents / 100; });
+    }
+
+    employees.forEach((e, i) => {
+      const tr = tbody.children[i];
+      if (!tr) return;
+      tr.querySelector('.share').textContent = fmtPct1(shares[i]);
+      tr.querySelector('.amount').textContent = fmtAmt2(amounts[i]);
+    });
+    const shareTotal = live.reduce((a, i) => a + (shares[i] || 0), 0);
+    el('emp-share-total').textContent = blocker ? '—' : fmtPct1(shareTotal);
+    el('emp-bonus-total').textContent = blocker || !isFinite(pool)
+      ? '—' : fmtAmt2(live.reduce((a, i) => a + amounts[i], 0));
+
+    let eMsg = blocker, eKind = blocker ? 'err' : '';
+    if (!blocker && !isFinite(pool)) { eMsg = 'Turn on the Bonus Pool toggle to calculate bonus amounts.'; eKind = ''; }
+    if (!live.length && !badRows) eKind = '';
+    if (!el('emp-msg').dataset.sticky) { el('emp-msg').textContent = eMsg; el('emp-msg').className = 'tbl-msg ' + eKind; }
+    const count = live.length + badRows;
+    el('emp-count').textContent = count ? '· ' + count + (count === 1 ? ' person' : ' people') + (blocker && count ? ' · needs attention' : '') : '';
+  }
+
+  function numCell(e, f) {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'pct no-spin';
+    inp.dataset.key = f.key;
+    inp.min = f.min;
+    if (isFinite(f.max)) inp.max = f.max;
+    inp.step = f.dp === 2 ? '0.01' : '0.1';
+    inp.placeholder = f.dp === 2 ? '0.00' : '0.0';
+    inp.value = e[f.key];
+    inp.addEventListener('input', () => { e[f.key] = inp.value; recalc(); });
+    inp.addEventListener('blur', () => {
+      const fixed = toDp(inp.value, f.dp);
+      if (fixed && fixed !== inp.value) { inp.value = fixed; e[f.key] = fixed; recalc(); }
+    });
+    const td = document.createElement('td');
+    td.appendChild(inp);
+    return td;
+  }
+
+  function renderEmployees() {
+    const tbody = el('emp-rows');
+    tbody.replaceChildren();
+    // No rows yet: offer upload or skip-to-manual instead of an empty table.
+    el('emp-empty').classList.toggle('hidden', employees.length > 0);
+    el('emp-table-wrap').classList.toggle('hidden', employees.length === 0);
+    employees.forEach((e, idx) => {
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td');
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.className = 'name-input';
+      name.placeholder = 'Name';
+      name.value = e.name;
+      name.addEventListener('input', () => { e.name = name.value; recalc(); });
+      nameTd.appendChild(name);
+      tr.appendChild(nameTd);
+      EMP_FIELDS.forEach(f => tr.appendChild(numCell(e, f)));
+      ['share', 'amount'].forEach(cls => {
+        const td = document.createElement('td');
+        const span = document.createElement('span');
+        span.className = 'computed ' + cls;
+        span.textContent = '—';
+        td.appendChild(span);
+        tr.appendChild(td);
+      });
+      const delTd = document.createElement('td');
+      delTd.className = 'del-col';
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'del-btn';
+      del.title = 'Remove row';
+      del.textContent = '×';
+      del.addEventListener('click', () => { employees.splice(idx, 1); delete el('emp-msg').dataset.sticky; renderEmployees(); recalc(); });
+      delTd.appendChild(del);
+      tr.appendChild(delTd);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function setEmpMsg(text, kind) {
+    // A sticky message (upload result) survives recalcs until the next edit to the rows.
+    const m = el('emp-msg');
+    m.textContent = text;
+    m.className = 'tbl-msg ' + (kind || '');
+    m.dataset.sticky = '1';
+    // Also show it on the empty-state panel, which is what's visible before any rows exist.
+    el('emp-empty-msg').textContent = text;
+    el('emp-empty-msg').className = 'tbl-msg ' + (kind || '');
+    // Capture phase: must clear before the row's own input handler recalcs.
+    const clear = () => { delete m.dataset.sticky; el('emp-rows').removeEventListener('input', clear, true); };
+    el('emp-rows').addEventListener('input', clear, true);
+  }
+
+  el('emp-empty-upload').addEventListener('click', () => el('emp-file').click());
+  el('emp-skip').addEventListener('click', () => el('emp-add').click());
+
+  el('emp-add').addEventListener('click', () => {
+    employees.push({ name: '', tenure: '', position: '', owner: '' });
+    delete el('emp-msg').dataset.sticky;
+    renderEmployees();
+    recalc();
+    const rows = el('emp-rows').children;
+    rows[rows.length - 1].querySelector('.name-input').focus();
+  });
+
+  WEIGHT_IDS.forEach(id => {
+    const inp = el(id);
+    inp.addEventListener('input', recalc);
+    inp.addEventListener('blur', () => {
+      const fixed = toDp(inp.value, 1);
+      if (fixed && fixed !== inp.value) { inp.value = fixed; recalc(); }
+    });
+  });
+
+  // Collapsible cards: collapsed on every page load.
+  document.querySelectorAll('.card-header.collapsible').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      el(btn.getAttribute('aria-controls')).classList.toggle('hidden', !open);
+    });
+  });
+
+  /* ---------- XLSX / CSV upload ---------- */
+  let xlsxLoading = null;
+  function loadXlsx() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (!xlsxLoading) {
+      xlsxLoading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = () => resolve(window.XLSX);
+        s.onerror = () => { xlsxLoading = null; reject(new Error('Could not load the spreadsheet reader — check your connection.')); };
+        document.head.appendChild(s);
+      });
+    }
+    return xlsxLoading;
+  }
+
+  // Header matching: Name is required; the other three are optional and left blank when absent.
+  const HEADER_TESTS = [
+    { key: 'name',     label: 'Name',           test: h => /\bname\b/.test(h) },
+    { key: 'tenure',   label: 'Tenure',         test: h => /tenure/.test(h) },
+    { key: 'owner',    label: 'Owner elective', test: h => /owner|elective/.test(h) },
+    { key: 'position', label: 'Position level', test: h => /position|level/.test(h) }
+  ];
+
+  function mapHeaders(row) {
+    const heads = row.map(c => String(c ?? '').toLowerCase().trim());
+    const cols = {};
+    const used = new Set();
+    HEADER_TESTS.forEach(t => {
+      const exact = heads.findIndex((h, i) => !used.has(i) && h === t.key);
+      const idx = exact >= 0 ? exact : heads.findIndex((h, i) => !used.has(i) && t.test(h));
+      if (idx >= 0) { cols[t.key] = idx; used.add(idx); }
+    });
+    return cols;
+  }
+
+  function importRows(grid) {
+    const headerAt = grid.findIndex(r => 'name' in mapHeaders(r));
+    if (headerAt < 0) throw new Error('No "Name" column found in the first sheet.');
+    const cols = mapHeaders(grid[headerAt]);
+    const out = [];
+    grid.slice(headerAt + 1).forEach(r => {
+      const name = String(r[cols.name] ?? '').trim();
+      if (!name) return;
+      const e = { name, tenure: '', position: '', owner: '' };
+      EMP_FIELDS.forEach(f => { if (f.key in cols) e[f.key] = toDp(r[cols[f.key]], f.dp); });
+      out.push(e);
+    });
+    if (!out.length) throw new Error('The Name column has no names under it.');
+    const inCardOrder = ['name', 'tenure', 'position', 'owner'].map(k => HEADER_TESTS.find(t => t.key === k));
+    const found = inCardOrder.filter(t => t.key in cols).map(t => t.label);
+    const missing = inCardOrder.filter(t => !(t.key in cols)).map(t => t.label);
+    return { rows: out, found, missing };
+  }
+
+  el('emp-upload-btn').addEventListener('click', () => el('emp-file').click());
+  el('emp-file').addEventListener('change', async ev => {
+    const file = ev.target.files[0];
+    ev.target.value = '';   // allow re-uploading the same file
+    if (!file) return;
+    if (employees.some(e => !isBlankRow(e)) &&
+        !confirm('Replace the current employee rows with ' + file.name + '?')) return;
+    try {
+      setEmpMsg('Reading ' + file.name + '…');
+      const XLSX = await loadXlsx();
+      const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const grid = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+      const res = importRows(grid);
+      employees = res.rows;
+      renderEmployees();
+      recalc();
+      setEmpMsg('Imported ' + res.rows.length + (res.rows.length === 1 ? ' row' : ' rows') +
+        ' — matched ' + res.found.join(', ') +
+        (res.missing.length ? '; not in file: ' + res.missing.join(', ') + ' (enter by hand)' : '') + '.', 'ok');
+    } catch (err) {
+      setEmpMsg('Upload failed: ' + err.message, 'err');
+    }
+  });
+
+  renderEmployees();
   recalc();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, signOut
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// Not a secret: this ships in client code by design. Firestore Security Rules
+// (see firestore.rules) are what actually protect each user's data.
+// Replace with the config from your Firebase project — see README.md.
+const FIREBASE_CONFIG = {
+  apiKey: "REPLACE_WITH_API_KEY",
+  authDomain: "REPLACE_WITH_PROJECT_ID.firebaseapp.com",
+  projectId: "REPLACE_WITH_PROJECT_ID",
+  storageBucket: "REPLACE_WITH_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "REPLACE_WITH_SENDER_ID",
+  appId: "REPLACE_WITH_APP_ID"
+};
+
+const $ = id => document.getElementById(id);
+const configured = !FIREBASE_CONFIG.apiKey.startsWith("REPLACE_WITH");
+
+let auth = null, db = null;
+let user = null;
+let authMode = "signin";   // "signin" | "signup"
+let saveTimer = null;
+let savePending = false;
+
+function showAuthMsg(text, kind) {
+  const holder = $("auth-msg-holder");
+  holder.innerHTML = "";
+  if (!text) return;
+  const div = document.createElement("div");
+  div.className = "auth-msg " + (kind || "");
+  div.textContent = text;
+  holder.appendChild(div);
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  $("auth-submit").textContent = mode === "signup" ? "Create account" : "Sign in";
+  $("auth-toggle-text").textContent = mode === "signup" ? "Already have an account?" : "New here?";
+  $("auth-toggle-btn").textContent = mode === "signup" ? "Sign in instead" : "Create an account";
+  $("auth-password").autocomplete = mode === "signup" ? "new-password" : "current-password";
+  showAuthMsg("");
+}
+
+function setSaveStatus(state, text) {
+  $("save-dot").className = "save-dot" + (state ? " " + state : "");
+  $("save-text").textContent = text;
+}
+
+/* ---------- persistence: one private doc per user at calcs/{uid} ---------- */
+function scheduleSave() {
+  if (!user) return;
+  setSaveStatus("saving", "Saving…");
+  savePending = true;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 900);
+}
+
+function saveNow() {
+  if (!user) return Promise.resolve();
+  savePending = false;
+  saveTimer = null;
+  return setDoc(doc(db, "calcs", user.uid), {
+    stateJson: JSON.stringify(window.getCalcState()),
+    updatedAt: new Date().toISOString()
+  }).then(() => {
+    if (!savePending) setSaveStatus("saved", "Saved to your account");
+  }).catch(err => {
+    setSaveStatus("err", "Couldn't save — " + err.message);
+  });
+}
+
+function loadOwnState() {
+  return getDoc(doc(db, "calcs", user.uid)).then(snap => {
+    let state = null;
+    if (snap.exists()) {
+      try { state = JSON.parse(snap.data().stateJson); } catch (e) { state = null; }
+    }
+    window.applyCalcState(state);   // no saved copy → blank calculator
+    setSaveStatus("saved", snap.exists() ? "Saved to your account" : "New calculator");
+  }).catch(() => {
+    window.applyCalcState(null);
+    setSaveStatus("err", "Couldn't load your saved copy");
+  });
+}
+
+function onSignedIn(u) {
+  if (user) return;   // sign-in call and onAuthStateChanged can both land here
+  user = u;
+  $("auth-screen").classList.add("hidden");
+  $("app-root").classList.remove("hidden");
+  const who = $("who-text");
+  who.textContent = "";
+  const b = document.createElement("b");
+  b.textContent = u.email;
+  who.append(b);
+
+  window.applyCalcState(null);   // paint blank first — never flash stale numbers
+  setSaveStatus("saving", "Loading…");
+  loadOwnState().then(() => {
+    // Only start autosaving once the saved copy is on screen, so loading can't overwrite it.
+    window.onCalcChange = scheduleSave;
+  });
+}
+
+/* ---------- auth screen wiring ---------- */
+$("auth-toggle-btn").addEventListener("click", () => {
+  setAuthMode(authMode === "signup" ? "signin" : "signup");
+});
+
+function submitAuth() {
+  if (!configured) { showAuthMsg("Firebase isn't set up yet — see README.md.", "err"); return; }
+  const email = $("auth-email").value.trim();
+  const password = $("auth-password").value;
+  if (!email || !password) { showAuthMsg("Enter your email and password.", "err"); return; }
+  showAuthMsg("Working…");
+  const action = authMode === "signup" ? createUserWithEmailAndPassword : signInWithEmailAndPassword;
+  action(auth, email, password)
+    .then(cred => onSignedIn(cred.user))
+    .catch(err => showAuthMsg(err.message, "err"));
+}
+
+$("auth-submit").addEventListener("click", submitAuth);
+["auth-email", "auth-password"].forEach(id => {
+  $(id).addEventListener("keydown", e => { if (e.key === "Enter") submitAuth(); });
+});
+
+$("sign-out-btn").addEventListener("click", () => {
+  // Flush any edit still waiting out its debounce so a quick sign-out never drops it.
+  clearTimeout(saveTimer);
+  const flush = savePending ? saveNow() : Promise.resolve();
+  flush.then(() => signOut(auth)).then(() => location.reload());
+});
+
+window.addEventListener("beforeunload", e => {
+  if (savePending) { saveNow(); e.preventDefault(); }
+});
+
+/* ---------- boot ---------- */
+setAuthMode("signin");
+if (!configured) {
+  $("auth-screen").classList.remove("hidden");
+  showAuthMsg("Firebase isn't set up yet — see README.md.", "err");
+} else {
+  const app = initializeApp(FIREBASE_CONFIG);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  onAuthStateChanged(auth, u => {
+    if (u) onSignedIn(u);
+    else $("auth-screen").classList.remove("hidden");
+  });
+}
 </script>
 </body>
 </html>

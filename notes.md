@@ -168,6 +168,17 @@ The following prompts from the build session most significantly shaped the final
 
 ## 7. Revision Notes
 
-_This section is reserved for future revision entries. Leave blank until revisions are made post-deployment._
+**2026-09-28 — Firebase sign-in + per-user save.** Mirrors `../revenue planner`. Email/password auth; each user's inputs autosave to Firestore `calcs/{uid}` (JSON in `stateJson`), locked by `firestore.rules`. No admin dashboard. Setup steps in `README.md`. Firebase config in `index.html` still holds `REPLACE_WITH_...` placeholders until the project is created.
 
 ---
+
+**2026-09-30 — Employee Bonuses + Weighting cards; no currency symbol.**
+- Cards ④ Employee Bonuses and ⑤ Weighting (Performance Summary is now ⑥). Both start collapsed on every page load.
+- Weighting: three %s (Tenure, Position level, Owner elective). Each must be ≥ 0.5%, and together they must total exactly 100.0%. The check is done in integer tenths, so no float drift.
+- Score = w_t·(tenure ÷ longest tenure) + w_p·(level ÷ 5) + w_o·(owner ÷ 5). Tenure is scaled so years don't swamp the 1–5 scales.
+- % share = score ÷ sum of scores, so the shares always total 100%. Bonus amount = Total Bonus Pool × share, split in whole cents with largest remainder so the rows sum exactly to the pool.
+- No shares appear until every non-blank row is valid (name, tenure ≥ 0, level/owner 1–5) and the weightings are valid. Fully blank rows are ignored.
+- With no rows, the card shows a start panel: Upload XLSX / CSV, or Skip upload — enter manually (adds a first row). Deleting the last row brings the panel back.
+- Upload (XLSX/CSV, SheetJS lazy-loaded from cdnjs) replaces all rows. It uses the first sheet and matches columns by header name. Only Name is required; unmatched columns are ignored.
+- Rows and weightings autosave in the Firestore state (`employees`, `weights`). Reset also clears them (it asks first); Clear does not.
+- Formats: %, level, owner → 1 dp; tenure, bonus amount and Total Bonus Pool (card ③ and summary) → 2 dp with commas. Other amounts stay whole numbers. The "$" symbol was removed from every value, input prefix and label.
