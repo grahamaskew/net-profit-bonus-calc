@@ -947,9 +947,9 @@ select {
           </thead>
           <tbody>
             <tr>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-tenure" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-position" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-owner" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="0"><span class="input-suffix">%</span></div></td>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-tenure" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-position" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
+              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-owner" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
               <td><span class="computed" id="wt-total">&mdash;</span></td>
             </tr>
           </tbody>
@@ -1207,7 +1207,7 @@ select {
   const EMP_FIELDS = [
     { key: 'tenure',   dp: 2, min: 0, max: Infinity },
     { key: 'position', dp: 1, min: 1, max: 5 },
-    { key: 'owner',    dp: 1, min: 0, max: 5 }   // 0 = no owner points; blank is still 'not entered'
+    { key: 'owner',    dp: 1, min: 0, max: 5, blankIsZero: true }   // empty = 0 owner points
   ];
   let employees = [];   // [{ name, tenure, position, owner }] — values kept as entered strings
 
@@ -1221,13 +1221,16 @@ select {
     return isFinite(v) ? v : NaN;
   };
   const toDp = (s, dp) => { const v = num(s); return isFinite(v) ? v.toFixed(dp) : ''; };
+  // A field's numeric value; an empty Owner elective counts as 0, other empty fields are NaN (not entered).
+  const fieldVal = (e, f) => (f.blankIsZero && String(e[f.key] ?? '').trim() === '') ? 0 : num(e[f.key]);
+  const EMP_FIELD = Object.fromEntries(EMP_FIELDS.map(f => [f.key, f]));
   const isBlankRow = e => !e.name.trim() && EMP_FIELDS.every(f => String(e[f.key]).trim() === '');
 
   function rowProblems(e) {
     const bad = [];
     if (!e.name.trim()) bad.push('name');
     EMP_FIELDS.forEach(f => {
-      const v = num(e[f.key]);
+      const v = fieldVal(e, f);
       if (!isFinite(v) || v < f.min || v > f.max) bad.push(f.key);
     });
     return bad;
@@ -1288,7 +1291,7 @@ select {
       const [wt, wp, wo] = w.tenths.map(t => t / 1000);
       const score = i => {
         const e = employees[i];
-        return wt * (maxT > 0 ? num(e.tenure) / maxT : 0) + wp * num(e.position) / 5 + wo * num(e.owner) / 5;
+        return wt * (maxT > 0 ? num(e.tenure) / maxT : 0) + wp * num(e.position) / 5 + wo * fieldVal(e, EMP_FIELD.owner) / 5;
       };
       const sum = live.reduce((a, i) => a + score(i), 0);
       if (sum > 0) live.forEach(i => { shares[i] = score(i) / sum; });
@@ -1334,7 +1337,8 @@ select {
     inp.min = f.min;
     if (isFinite(f.max)) inp.max = f.max;
     inp.step = f.dp === 2 ? '0.01' : '0.1';
-    inp.placeholder = f.dp === 2 ? '0.00' : '0.0';
+    // Only Owner elective treats empty as 0, so only it gets a zero hint; elsewhere a dash means 'not entered'.
+    inp.placeholder = f.blankIsZero ? '0.0' : '—';
     inp.value = e[f.key];
     inp.addEventListener('input', () => { e[f.key] = inp.value; recalc(); });
     inp.addEventListener('blur', () => {

@@ -44,7 +44,7 @@ A single `index.html`: a sign-in screen, then a navy top bar and six numbered ca
 - Result: NOP gain used, % applied, Total Bonus Pool (2 dp). Zero or negative gain → 0.00.
 
 ### ④ Employee Bonuses (collapsed on load)
-- Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (0–5, 1 dp; 0 = no owner points, blank = not entered), % share (1 dp), Bonus amount (2 dp).
+- Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (0–5, 1 dp; empty counts as 0), % share (1 dp), Bonus amount (2 dp).
 - With no rows: a start panel offering Upload XLSX / CSV, or Skip upload — enter manually.
 - Share and amount maths: see revision note 2026-09-30.
 
@@ -171,7 +171,7 @@ No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net
 - Weighting: three %s (Tenure, Position level, Owner elective). Each must be ≥ 0.5%, and together they must total exactly 100.0%. The check is done in integer tenths, so no float drift.
 - Score = w_t·(tenure ÷ longest tenure) + w_p·(level ÷ 5) + w_o·(owner ÷ 5). Tenure is scaled so years don't swamp the 1–5 scales.
 - % share = score ÷ sum of scores, so the shares always total 100%. Bonus amount = Total Bonus Pool × share, split in whole cents with largest remainder so the rows sum exactly to the pool.
-- No shares appear until every non-blank row is valid (name, tenure ≥ 0, level 1–5, owner 0–5) and the weightings are valid. Fully blank rows are ignored.
+- No shares appear until every non-blank row is valid (name, tenure ≥ 0, level 1–5, owner 0–5 or empty) and the weightings are valid. Fully blank rows are ignored.
 - With no rows, the card shows a start panel: Upload XLSX / CSV, or Skip upload — enter manually (adds a first row). Deleting the last row brings the panel back.
 - Upload, multi-tab workbooks: a tab picker opens with the last tab preselected.
 - Header synonyms from the historical "Yearly Bonus Schedule" workbook: Years = Tenure, Extra Point(s) = Owner elective. With no Name header, the column left of Years is read as names.
