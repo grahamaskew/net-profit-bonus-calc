@@ -47,6 +47,7 @@ A single `index.html`: a sign-in screen, then a navy top bar and six numbered ca
 - Columns: Name, Tenure (years, 2 dp), Position level (1–5, 1 dp), Owner elective (0–5, 1 dp; empty counts as 0, and 0 is shown as a dash), % share (1 dp), Bonus amount (2 dp).
 - With no rows: a start panel offering Upload XLSX / CSV, or Skip upload — enter manually.
 - Share and amount maths: see revision note 2026-09-30.
+- A dash (—) in an empty cell means "not entered" for Tenure and Position, which are flagged. For Owner elective it means 0, which is valid.
 
 ### ⑤ Weighting (collapsed on load)
 - Tenure / Position level / Owner elective %. Each must be ≥ 0.5%, and together they must total exactly 100.0%.
@@ -156,6 +157,8 @@ No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net
 - **Edits made during "Loading…" are lost:** the saved copy replaces the screen when it arrives.
 - **Load failure = read-only session:** if the saved copy can't be loaded, autosave stays off (so a blank calculator can't overwrite it) until reload.
 - **No password reset / email verification:** sign-in is email + password only.
+- **Scoring differs from the historical workbook:** the old "Yearly Bonus Schedule" sheets score people as a raw sum (Years + Points + Position, equal weight). This app scales tenure to the longest-serving person and applies the Weighting card. That was a deliberate choice (2026-09-30), so past years' results will not reproduce exactly.
+- **GitHub Pages caching:** browsers may reuse the old page for up to ~10 min after a deploy; hard refresh (Cmd+Shift+R).
 - **Input validation is limited in ①–③:** percentages above 100% or baseline > target are accepted. Card ④ and ⑤ inputs are validated.
 
 ---
@@ -177,6 +180,22 @@ No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net
 - Header synonyms from the historical "Yearly Bonus Schedule" workbook: Years = Tenure, Extra Point(s) = Owner elective. With no Name header, the column left of Years is read as names.
 - Import reads only the unbroken block under the header row, stopping at the first blank name or a Total row, so the summary blocks below are ignored.
 - Out-of-range values (e.g. Position 0) import and are flagged.
-- Upload (XLSX/CSV, SheetJS lazy-loaded from cdnjs) replaces all rows. It uses the first sheet and matches columns by header name. Only Name is required; unmatched columns are ignored.
+- Upload (XLSX/CSV, SheetJS lazy-loaded from cdnjs) replaces all rows, after a confirm if rows exist. Columns are matched by header name. Only names are required (a Name header, or the column beside Years/Tenure); unmatched columns are ignored.
 - Rows and weightings autosave in the Firestore state (`employees`, `weights`). Reset also clears them (it asks first); Clear does not.
 - Formats: %, level, owner → 1 dp; tenure, bonus amount and Total Bonus Pool (card ③ and summary) → 2 dp with commas. Other amounts stay whole numbers. The "$" symbol was removed from every value, input prefix and label.
+
+---
+
+**2026-09-30 (later) — Firebase project live; review fixes; workbook import; Owner elective 0.**
+- Firebase project `nop-bonus-calc-gmvz3` created and connected. The real config is in `index.html`, so the placeholder note above is obsolete.
+- `firebase.json` and `.firebaserc` deploy the rules and the email/password provider. Authorized domains are set.
+- Tested end to end: an owner can read and write only their own `calcs/{uid}`; another user and anonymous requests get 403.
+- CodeRabbit (assertive) review, fixed:
+  - A failed load no longer enables autosave (it could overwrite the saved copy with a blank one).
+  - Sign-out waits up to 8 s for a pending save and asks before discarding a failed one.
+  - Buttons got `type=button`, and stale notes were refreshed.
+- CodeRabbit, skipped: "delete-row index is stale" (false, because rows re-render after every delete) and field-level rule validation (low value).
+- Workbook import: tab picker, the Years / Extra Points synonyms, an inferred name column, and a stop at the first blank name or Total row (details above).
+- Owner elective: the range is 0–5; empty counts as 0 and is never flagged; 0 is stored empty so it displays as "—". Position level stays 1–5.
+- Placeholders are now "—" instead of "0.0", so an empty cell can't be mistaken for a zero.
+
