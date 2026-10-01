@@ -51,6 +51,7 @@ A single `index.html`: a sign-in screen, then a navy top bar and six numbered ca
 
 ### ⑤ Weighting (collapsed on load)
 - Tenure / Position level / Owner elective %. Each must be ≥ 0.5%, and together they must total exactly 100.0%.
+- Each header is centred over its input. The `%` sits just outside, to the right. Total stays right-aligned.
 
 ### ⑥ Performance Summary
 - 2×2 colour-coded cards: Revenue Attainment, NOP % Attainment, Actual NOP Gain, Total Bonus Pool.
@@ -199,3 +200,9 @@ No build step or bundler. Hosted on **GitHub Pages** (`grahamaskew.github.io/net
 - Owner elective: the range is 0–5; empty counts as 0 and is never flagged; 0 is stored empty so it displays as "—". Position level stays 1–5.
 - Placeholders are now "—" instead of "0.0", so an empty cell can't be mistaken for a zero.
 
+---
+
+**2026-10-01 — Weighting card alignment.**
+- Tenure, Position level and Owner elective headers are centred, and so are their inputs. Total stays right-aligned.
+- Centring the input + `%` pair left the input about 7 px off centre. A hidden copy of `%` on the left (`.input-wrap::before`) balances it, so the input itself sits under the header.
+- Checked in headless Chromium: header and input centres match to the pixel.
