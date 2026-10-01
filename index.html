@@ -443,6 +443,9 @@ select {
 }
 .tbl td:first-child { text-align: left; }
 .tbl.tbl-right td:first-child { text-align: right; }
+.tbl.tbl-right th.wt-col, .tbl.tbl-right td.wt-col { text-align: center; }
+/* invisible twin of the % suffix, so the input itself (not input + %) sits under the centred header */
+.tbl td.wt-col .input-wrap::before { content: '%'; visibility: hidden; font-size: 13px; font-family: var(--mono); }
 .tbl input[type="text"].name-input {
   font-family: var(--sans);
   font-size: 13px;
@@ -939,17 +942,17 @@ select {
         <table class="tbl tbl-right">
           <thead>
             <tr>
-              <th>Tenure</th>
-              <th>Position level</th>
-              <th>Owner elective</th>
+              <th class="wt-col">Tenure</th>
+              <th class="wt-col">Position level</th>
+              <th class="wt-col">Owner elective</th>
               <th>Total</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-tenure" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-position" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
-              <td><div class="input-wrap" style="justify-content:flex-end"><input type="number" id="wt-owner" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
+              <td class="wt-col"><div class="input-wrap" style="justify-content:center"><input type="number" id="wt-tenure" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
+              <td class="wt-col"><div class="input-wrap" style="justify-content:center"><input type="number" id="wt-position" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
+              <td class="wt-col"><div class="input-wrap" style="justify-content:center"><input type="number" id="wt-owner" class="pct no-spin dp1" min="0.5" max="100" step="0.1" placeholder="—"><span class="input-suffix">%</span></div></td>
               <td><span class="computed" id="wt-total">&mdash;</span></td>
             </tr>
           </tbody>
